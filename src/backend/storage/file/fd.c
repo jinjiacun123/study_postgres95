@@ -455,9 +455,9 @@ FreeVfd(File file)
 static char *
 filepath(char *filename)
 {
-    char *buf;
-    char basename[16];
-    int len;
+    char	*buf;
+    char	basename[16];
+    int		len;
 
 #ifndef WIN32    
     if (*filename != Sep_char) {
@@ -465,17 +465,17 @@ filepath(char *filename)
     if (!(filename[1] == ':' && filename[2] == Sep_char)) {
 #endif /* WIN32 */	
 
-	/* Either /base/ or \base\ */
-	sprintf(basename, "%cbase%c", Sep_char, Sep_char);
+		/* Either /base/ or \base\ */
+		sprintf(basename, "%cbase%c", Sep_char, Sep_char);
 
-	len = strlen(DataDir) + strlen(basename) + strlen(GetDatabaseName())
-	    + strlen(filename) + 2;
-	buf = (char*) palloc(len);
-	sprintf(buf, "%s%s%s%c%s",
-		DataDir, basename, GetDatabaseName(), Sep_char, filename);
+		len = strlen(DataDir) + strlen(basename) + strlen(GetDatabaseName())
+			+ strlen(filename) + 2;
+		buf = (char*) palloc(len);
+		sprintf(buf, "%s%s%s%c%s",
+			DataDir, basename, GetDatabaseName(), Sep_char, filename);
     } else {
-	buf = (char *) palloc(strlen(filename) + 1);
-	strcpy(buf, filename);
+		buf = (char *) palloc(strlen(filename) + 1);
+		strcpy(buf, filename);
     }
     
     return(buf);
@@ -601,8 +601,8 @@ FileNameOpenFile(FileName fileName, int fileFlags, int fileMode)
     File fd;
     char *fname;
     
-    fname = filepath(fileName);
-    fd = fileNameOpenFile(fname, fileFlags, fileMode);
+    fname	= filepath(fileName);
+    fd		= fileNameOpenFile(fname, fileFlags, fileMode);
     pfree(fname);
     return(fd);
 }
@@ -737,29 +737,29 @@ FileSeek(File file, long offset, int whence)
     int	returnCode;
     
     DO_DB(printf("DEBUG: FileSeek: %d (%s) %d %d\n",
-		 file, VfdCache[file].fileName, offset, whence));
+				 file, VfdCache[file].fileName, offset, whence));
     
     if (FileIsNotOpen(file)) {
-	switch(whence) {
-	case SEEK_SET:
-	    VfdCache[file].seekPos = offset;
-	    return offset;
-	case SEEK_CUR:
-	    VfdCache[file].seekPos = VfdCache[file].seekPos +offset;
-	    return VfdCache[file].seekPos;
-	case SEEK_END:
-	    FileAccess(file);
-	    returnCode = VfdCache[file].seekPos = 
-		lseek(VfdCache[file].fd, offset, whence);
-	    return returnCode;
-	default:
-	    elog(WARN, "FileSeek: invalid whence: %d", whence);
-	    break;
-	}
+		switch(whence) {
+			case SEEK_SET:
+				VfdCache[file].seekPos = offset;
+				return offset;
+			case SEEK_CUR:
+				VfdCache[file].seekPos = VfdCache[file].seekPos +offset;
+				return VfdCache[file].seekPos;
+			case SEEK_END:
+				FileAccess(file);
+				returnCode = VfdCache[file].seekPos = 
+				lseek(VfdCache[file].fd, offset, whence);
+				return returnCode;
+			default:
+				elog(WARN, "FileSeek: invalid whence: %d", whence);
+				break;
+		}
     } else {
-	returnCode = VfdCache[file].seekPos = 
-	    lseek(VfdCache[file].fd, offset, whence);
-	return returnCode;
+		returnCode = VfdCache[file].seekPos = 
+					 lseek(VfdCache[file].fd, offset, whence);
+		return returnCode;
     }
     /*NOTREACHED*/
     return(-1L);

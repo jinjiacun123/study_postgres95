@@ -136,9 +136,9 @@ extern int CheckPathAccess(char *path, char *name, int open_mode);
  */
 
 typedef enum ProcessingMode {
-    NoProcessing,		/* "nothing" can be done */
+    NoProcessing,			/* "nothing" can be done */
     BootstrapProcessing,	/* bootstrap creation of template database */
-    InitProcessing,		/* initializing system */
+    InitProcessing,			/* initializing system */
     NormalProcessing		/* normal processing */
 } ProcessingMode;
 

@@ -139,13 +139,13 @@ static int init_htab();
  */
 
 #define GET_SEG(hp,seg_num)\
-  (SEGMENT) (((unsigned long) (hp)->segbase) + (hp)->dir[seg_num])
+				(SEGMENT) (((unsigned long) (hp)->segbase) + (hp)->dir[seg_num])
 
 #define GET_BUCKET(hp,bucket_offs)\
-  (ELEMENT *) (((unsigned long) (hp)->segbase) + bucket_offs)
+				  (ELEMENT *) (((unsigned long) (hp)->segbase) + bucket_offs)
 
 #define MAKE_HASHOFFSET(hp,ptr)\
-  ( ((unsigned long) ptr) - ((unsigned long) (hp)->segbase) )
+					   ( ((unsigned long) ptr) - ((unsigned long) (hp)->segbase) )
 
 # if HASH_STATISTICS
 static long hash_accesses, hash_collisions, hash_expansions;
@@ -424,12 +424,12 @@ call_hash(HTAB *hashp, char *k, int len)
     long     hash_val, bucket;
     HHDR	*hctl;
     
-    hctl = hashp->hctl;
-    hash_val = hashp->hash(k, len);
+    hctl		= hashp->hctl;
+    hash_val	= hashp->hash(k, len);
     
     bucket = hash_val & hctl->high_mask;
     if ( bucket > hctl->max_bucket ) {
-	bucket = bucket & hctl->low_mask;
+		bucket = bucket & hctl->low_mask;
     }
     
     return(bucket);
@@ -515,7 +515,7 @@ hash_search(HTAB	   *hashp,
 				break;
 			} 
 			prevIndexPtr = &(curr->next);
-			currIndex = *prevIndexPtr;
+			currIndex	 = *prevIndexPtr;
 # if HASH_STATISTICS
 			hash_collisions++;
 			hashp->hctl->collisions++;
@@ -587,7 +587,7 @@ hash_search(HTAB	   *hashp,
     }
     Assert(currIndex != INVALID_INDEX);
     
-    curr = GET_BUCKET(hashp,currIndex);
+    curr				  = GET_BUCKET(hashp,currIndex);
     hctl->freeBucketIndex = curr->next;
     
     /* link into chain */
@@ -607,10 +607,10 @@ hash_search(HTAB	   *hashp,
      * Check if it is time to split the segment
      */
     if (++hctl->nkeys / (hctl->max_bucket+1) > hctl->ffactor) {
-	/*
-	  fprintf(stderr,"expanding on '%s'\n",keyPtr);
-	  hash_stats("expanded table",hashp);
-	  */
+		/*
+		fprintf(stderr,"expanding on '%s'\n",keyPtr);
+		hash_stats("expanded table",hashp);
+		*/
 		if (! expand_table(hashp))
 			return(NULL);
     }
@@ -691,43 +691,43 @@ hash_seq(HTAB *hashp)
 static int
 expand_table(HTAB *hashp)
 {
-    HHDR	*hctl;
-    SEGMENT	old_seg,new_seg;
-    long	old_bucket, new_bucket;
-    long	new_segnum, new_segndx;
-    long	old_segnum, old_segndx;
-    ELEMENT	*chain;
-    BUCKET_INDEX *old,*newbi;
-    register BUCKET_INDEX chainIndex,nextIndex;
+    HHDR					*hctl;
+    SEGMENT					old_seg,	new_seg;
+    long					old_bucket, new_bucket;
+    long					new_segnum, new_segndx;
+    long					old_segnum, old_segndx;
+    ELEMENT					*chain;
+    BUCKET_INDEX			*old,*newbi;
+    register BUCKET_INDEX	chainIndex,nextIndex;
     
 #ifdef HASH_STATISTICS
     hash_expansions++;
 #endif
     
-    hctl = hashp->hctl;
-    new_bucket = ++hctl->max_bucket;
-    old_bucket = (hctl->max_bucket & hctl->low_mask);
+    hctl		= hashp->hctl;
+    new_bucket	= ++hctl->max_bucket;
+    old_bucket	= (hctl->max_bucket & hctl->low_mask);
     
-    new_segnum = new_bucket >> hctl->sshift;
-    new_segndx = MOD ( new_bucket, hctl->ssize );
+    new_segnum	= new_bucket >> hctl->sshift;
+    new_segndx	= MOD ( new_bucket, hctl->ssize );
     
     if ( new_segnum >= hctl->nsegs ) {
 	
-	/* Allocate new segment if necessary */
-	if (new_segnum >= hctl->dsize) {
-	    dir_realloc(hashp);
-	}
-	if (! (hashp->dir[new_segnum] = seg_alloc(hashp))) {
-	    return (0);
-	}
-	hctl->nsegs++;
+		/* Allocate new segment if necessary */
+		if (new_segnum >= hctl->dsize) {
+			dir_realloc(hashp);
+		}
+		if (! (hashp->dir[new_segnum] = seg_alloc(hashp))) {
+			return (0);
+		}
+		hctl->nsegs++;
     }
     
     
     if ( new_bucket > hctl->high_mask ) {
-	/* Starting a new doubling */
-	hctl->low_mask = hctl->high_mask;
-	hctl->high_mask = new_bucket | hctl->low_mask;
+		/* Starting a new doubling */
+		hctl->low_mask  = hctl->high_mask;
+		hctl->high_mask = new_bucket | hctl->low_mask;
     }
     
     /*
@@ -739,24 +739,24 @@ expand_table(HTAB *hashp)
     old_seg = GET_SEG(hashp,old_segnum);
     new_seg = GET_SEG(hashp,new_segnum);
     
-    old = &old_seg[old_segndx];
-    newbi = &new_seg[new_segndx];
+    old		= &old_seg[old_segndx];
+    newbi	= &new_seg[new_segndx];
     for (chainIndex = *old; 
-	 chainIndex != INVALID_INDEX;
-	 chainIndex = nextIndex){
+		chainIndex != INVALID_INDEX;
+		chainIndex = nextIndex){
 	
-	chain = GET_BUCKET(hashp,chainIndex);
-	nextIndex = chain->next;
-	if ( call_hash(hashp,
-		       (char *)&(chain->key),
-		       hctl->keysize) == old_bucket ) {
-	    *old = chainIndex;
-	    old = &chain->next;
-	} else {
-	    *newbi = chainIndex;
-	    newbi = &chain->next;
-	}
-	chain->next = INVALID_INDEX;
+		chain		= GET_BUCKET(hashp,chainIndex);
+		nextIndex	= chain->next;
+		if ( call_hash(hashp,
+						(char *)&(chain->key),
+						hctl->keysize) == old_bucket ) {
+			*old = chainIndex;
+			old  = &chain->next;
+		} else {
+			*newbi = chainIndex;
+			newbi  = &chain->next;
+		}
+		chain->next = INVALID_INDEX;
     }
     return (1);
 }

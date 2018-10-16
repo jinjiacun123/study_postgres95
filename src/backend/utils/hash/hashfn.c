@@ -30,7 +30,7 @@ string_hash(char *key, int keysize)
      * Convert string to integer
      */
     while (*k)
-	h = h * PRIME1 ^ (*k++ - ' ');
+		h = h * PRIME1 ^ (*k++ - ' ');
     h %= PRIME2;
     
     return (h);

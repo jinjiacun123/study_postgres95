@@ -73,13 +73,13 @@ typedef StrategyEvaluationData	*StrategyEvaluation;
 
 typedef struct StrategyMapData {
 	ScanKeyData		entry[1];	/* VARIABLE LENGTH ARRAY */
-} StrategyMapData;	/* VARIABLE LENGTH STRUCTURE */
+} StrategyMapData;				/* VARIABLE LENGTH STRUCTURE */
 
 typedef StrategyMapData	*StrategyMap;
 
 typedef struct IndexStrategyData {
 	StrategyMapData	strategyMapData[1];	/* VARIABLE LENGTH ARRAY */
-} IndexStrategyData;	/* VARIABLE LENGTH STRUCTURE */
+} IndexStrategyData;					/* VARIABLE LENGTH STRUCTURE */
 
 typedef IndexStrategyData	*IndexStrategy;
 

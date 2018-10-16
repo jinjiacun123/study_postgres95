@@ -70,28 +70,28 @@ typedef FormData_pg_am	*Form_pg_am;
  *	compiler constants for pg_am
  * ----------------
  */
-#define Natts_pg_am			22
-#define Anum_pg_am_amname		1
-#define Anum_pg_am_amowner		2
-#define Anum_pg_am_amkind		3
+#define Natts_pg_am					22
+#define Anum_pg_am_amname			1
+#define Anum_pg_am_amowner			2
+#define Anum_pg_am_amkind			3
 #define Anum_pg_am_amstrategies		4
 #define Anum_pg_am_amsupport		5
 #define Anum_pg_am_amgettuple		6
-#define Anum_pg_am_aminsert		7
-#define Anum_pg_am_amdelete		8
+#define Anum_pg_am_aminsert			7
+#define Anum_pg_am_amdelete			8
 #define Anum_pg_am_amgetattr		9
 #define Anum_pg_am_amsetlock		10
-#define Anum_pg_am_amsettid		11
+#define Anum_pg_am_amsettid			11
 #define Anum_pg_am_amfreetuple		12
 #define Anum_pg_am_ambeginscan		13
-#define Anum_pg_am_amrescan		14
+#define Anum_pg_am_amrescan			14
 #define Anum_pg_am_amendscan		15
 #define Anum_pg_am_ammarkpos		16
 #define Anum_pg_am_amrestrpos		17
-#define Anum_pg_am_amopen		18
-#define Anum_pg_am_amclose		19
-#define Anum_pg_am_ambuild		20
-#define Anum_pg_am_amcreate		21
+#define Anum_pg_am_amopen			18
+#define Anum_pg_am_amclose			19
+#define Anum_pg_am_ambuild			20
+#define Anum_pg_am_amcreate			21
 #define Anum_pg_am_amdestroy		22
 
 /* ----------------

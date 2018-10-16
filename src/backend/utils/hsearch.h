@@ -19,9 +19,9 @@
  * Constants
  */
 # define DEF_BUCKET_SIZE		256
-# define DEF_BUCKET_SHIFT		8	/* log2(BUCKET) */
+# define DEF_BUCKET_SHIFT		8		/* log2(BUCKET) */
 # define DEF_SEGSIZE			256
-# define DEF_SEGSIZE_SHIFT		8      /* log2(SEGSIZE)	 */
+# define DEF_SEGSIZE_SHIFT		8		/* log2(SEGSIZE) */
 # define DEF_DIRSIZE			256
 # define PRIME1					37
 # define PRIME2					1048583
@@ -35,7 +35,7 @@
  */
 typedef struct element {
     unsigned long next;		/* secret from user	 */
-    long key;
+    long		  key;
 } ELEMENT;
 
 typedef unsigned long BUCKET_INDEX;
@@ -44,25 +44,25 @@ typedef BUCKET_INDEX *SEGMENT;
 typedef unsigned long SEG_OFFSET;
 
 typedef struct hashhdr {
-    long bsize;			/* Bucket/Page Size */
-    long bshift;		/* Bucket shift */
-    long dsize;			/* Directory Size */
-    long ssize;			/* Segment Size */
-    long sshift;		/* Segment shift */
-    long max_bucket;	/* ID of Maximum bucket in use */
-    long high_mask;		/* Mask to modulo into entire table */
-    long low_mask;		/* Mask to modulo into lower half of table */
-    long ffactor;		/* Fill factor */
-    long nkeys;			/* Number of keys in hash table */
-    long nsegs;			/* Number of allocated segments */
-    long keysize;		/* hash key length in bytes */
-    long datasize;		/* elem data length in bytes */
-    long max_dsize;		/* 'dsize' limit if directory is fixed size */ 
-    BUCKET_INDEX freeBucketIndex;
-						/* index of first free bucket */
+    long			bsize;			/* Bucket/Page Size */
+    long			bshift;			/* Bucket shift */
+    long			dsize;			/* Directory Size */
+    long			ssize;			/* Segment Size */
+    long			sshift;			/* Segment shift */
+    long			max_bucket;		/* ID of Maximum bucket in use */
+    long			high_mask;		/* Mask to modulo into entire table */
+    long			low_mask;		/* Mask to modulo into lower half of table */
+    long			ffactor;		/* Fill factor */
+    long			nkeys;			/* Number of keys in hash table */
+    long			nsegs;			/* Number of allocated segments */
+    long			keysize;		/* hash key length in bytes */
+    long			datasize;		/* elem data length in bytes */
+    long			max_dsize;		/* 'dsize' limit if directory is fixed size */ 
+    BUCKET_INDEX	freeBucketIndex;
+									/* index of first free bucket */
 #ifdef HASH_STATISTICS
-    long accesses;
-    long collisions;
+    long			accesses;
+    long			collisions;
 #endif
 } HHDR;
 
@@ -70,12 +70,12 @@ typedef struct htab {
     HHDR		*hctl;			/* shared control information */
     long		(*hash)();		/* Hash Function */
     char		*segbase;		/* segment base address for 
-								* calculating pointer values 
-								*/
+								 * calculating pointer values 
+								 */
     SEG_OFFSET	*dir;			/* 'directory' of segm starts */
     long		*(*alloc)(); 	/* memory allocator 
-								* (long * for alignment reasons)
-								*/
+								 * (long * for alignment reasons)
+								 */
 
 } HTAB;
 

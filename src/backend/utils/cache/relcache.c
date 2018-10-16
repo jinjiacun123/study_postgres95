@@ -97,8 +97,8 @@
  *	externs
  * ----------------
  */
-extern bool	AMI_OVERRIDE;	/* XXX style */
-extern GlobalMemory CacheCxt;	/* from utils/cache/catcache.c */
+extern bool			AMI_OVERRIDE;	/* XXX style */
+extern GlobalMemory CacheCxt;		/* from utils/cache/catcache.c */
 
 /* ----------------
  *	hardcoded tuple descriptors.  see lib/backend/catalog/pg_attribute.h
@@ -128,11 +128,11 @@ HTAB	*RelationIdCache;
  * ----------------
  */
 typedef struct RelationBuildDescInfo {
-    int infotype;		/* lookup by id or by name */
-#define INFO_RELID 1
+    int infotype;			/* lookup by id or by name */
+#define INFO_RELID	 1
 #define INFO_RELNAME 2
     union {
-		Oid info_id;		/* relation object id */
+		Oid  info_id;		/* relation object id */
 		char *info_name;	/* relation name */
     } i;
 } RelationBuildDescInfo;
@@ -916,19 +916,19 @@ IndexedAccessMethodInitialize(Relation relation)
  * --------------------------------
  */
 static void
-formrdesc(char *relationName,
-	  u_int natts,
-	  FormData_pg_attribute att[])
+formrdesc(char					*relationName,
+		  u_int					natts,
+		  FormData_pg_attribute att[])
 {
     Relation	relation;
-    Size	len;
-    int		i;
+    Size		len;
+    int			i;
     
     /* ----------------
      *	allocate new relation desc
      * ----------------
      */
-    len = sizeof (RelationData);
+    len		 = sizeof (RelationData);
     relation = (Relation) palloc(len);
     memset((char *)relation, 0,len); 
 
@@ -949,7 +949,7 @@ formrdesc(char *relationName,
      * ----------------
      */
     relation->rd_rel = (Form_pg_class)
-	palloc((Size) (sizeof(*relation->rd_rel)));
+		palloc((Size) (sizeof(*relation->rd_rel)));
     memset(relation->rd_rel, 0, sizeof(FormData_pg_class)); 
     namestrcpy(&relation->rd_rel->relname, relationName);
     
@@ -966,34 +966,34 @@ formrdesc(char *relationName,
      */
     
     if (IsSystemRelationName(relationName)) {
-	relation->rd_rel->relowner = 6;			/* XXX use sym const */
-	relation->rd_rel->relisshared =
-	    IsSharedSystemRelationName(relationName);
+		relation->rd_rel->relowner		= 6;				/* XXX use sym const */
+		relation->rd_rel->relisshared	=
+				IsSharedSystemRelationName(relationName);
     } else {
-	relation->rd_rel->relowner = InvalidOid;	/* XXX incorrect*/
-	relation->rd_rel->relisshared = false;
+		relation->rd_rel->relowner		= InvalidOid;		/* XXX incorrect*/
+		relation->rd_rel->relisshared	= false;
     }
     
-    relation->rd_rel->relpages = 1;			/* XXX */
+    relation->rd_rel->relpages	= 1;			/* XXX */
     relation->rd_rel->reltuples = 1;			/* XXX */
-    relation->rd_rel->relkind = RELKIND_RELATION;
-    relation->rd_rel->relarch = 'n';
-    relation->rd_rel->relnatts = (uint16) natts;
-    relation->rd_isnailed = true;
+    relation->rd_rel->relkind	= RELKIND_RELATION;
+    relation->rd_rel->relarch	= 'n';
+    relation->rd_rel->relnatts	= (uint16) natts;
+    relation->rd_isnailed		= true;
     
     /* ----------------
      *	initialize tuple desc info
      * ----------------
      */
     for (i = 0; i < natts; i++) {
-	relation->rd_att->attrs[i] = 
-	    (AttributeTupleForm)palloc(ATTRIBUTE_TUPLE_SIZE);
+		relation->rd_att->attrs[i] = 
+			(AttributeTupleForm)palloc(ATTRIBUTE_TUPLE_SIZE);
 	
-	memset((char *)relation->rd_att->attrs[i], 0,
-	       ATTRIBUTE_TUPLE_SIZE);
-	memmove((char *)relation->rd_att->attrs[i],
-		(char *)&att[i],
-		ATTRIBUTE_TUPLE_SIZE);
+		memset((char *)relation->rd_att->attrs[i], 0,
+			   ATTRIBUTE_TUPLE_SIZE);
+		memmove((char *)relation->rd_att->attrs[i],
+				(char *)&att[i],
+				ATTRIBUTE_TUPLE_SIZE);
     }
     
     /* ----------------
@@ -1013,7 +1013,7 @@ formrdesc(char *relationName,
      * we must do the check (and possible set) after cache insertion.
      */
     relation->rd_rel->relhasindex =
-	CatalogHasIndex(relationName, relation->rd_id);
+		CatalogHasIndex(relationName, relation->rd_id);
 }
 
 
@@ -1446,14 +1446,14 @@ void
 RelationInitialize()
 {
     MemoryContext		oldcxt;
-    HASHCTL			ctl;
+    HASHCTL				ctl;
     
     /* ----------------
      *	switch to cache memory context
      * ----------------
      */
     if (!CacheCxt)
-	CacheCxt = CreateGlobalMemory("Cache");
+		CacheCxt = CreateGlobalMemory("Cache");
     
     oldcxt = MemoryContextSwitchTo((MemoryContext)CacheCxt);
     
@@ -1462,14 +1462,14 @@ RelationInitialize()
      * ----------------
      */
     memset(&ctl,0, (int) sizeof(ctl)); 
-    ctl.keysize = sizeof(NameData);
-    ctl.datasize = sizeof(Relation); 
-    RelationNameCache = hash_create(INITRELCACHESIZE, &ctl, HASH_ELEM);
+    ctl.keysize			= sizeof(NameData);
+    ctl.datasize		= sizeof(Relation); 
+    RelationNameCache	= hash_create(INITRELCACHESIZE, &ctl, HASH_ELEM);
     
-    ctl.keysize = sizeof(Oid);
-    ctl.hash = tag_hash;
+    ctl.keysize		= sizeof(Oid);
+    ctl.hash		= tag_hash;
     RelationIdCache = hash_create(INITRELCACHESIZE, &ctl, 
-				  HASH_ELEM | HASH_FUNCTION);
+								  HASH_ELEM | HASH_FUNCTION);
     
     /* ----------------
      *	initialize the cache with pre-made relation descriptors
@@ -1477,13 +1477,13 @@ RelationInitialize()
      *  relations should always be in the cache.
      * ----------------
      */
-    formrdesc(RelationRelationName, Natts_pg_class, Desc_pg_class);
-    formrdesc(AttributeRelationName, Natts_pg_attribute, Desc_pg_attribute);
-    formrdesc(ProcedureRelationName, Natts_pg_proc, Desc_pg_proc);
-    formrdesc(TypeRelationName, Natts_pg_type, Desc_pg_type);
-    formrdesc(VariableRelationName, Natts_pg_variable, Desc_pg_variable);
-    formrdesc(LogRelationName, Natts_pg_log, Desc_pg_log);
-    formrdesc(TimeRelationName, Natts_pg_time, Desc_pg_time);
+    formrdesc(RelationRelationName,		Natts_pg_class,		Desc_pg_class);
+    formrdesc(AttributeRelationName,	Natts_pg_attribute, Desc_pg_attribute);
+    formrdesc(ProcedureRelationName,	Natts_pg_proc,		Desc_pg_proc);
+    formrdesc(TypeRelationName,			Natts_pg_type,		Desc_pg_type);
+    formrdesc(VariableRelationName,		Natts_pg_variable,	Desc_pg_variable);
+    formrdesc(LogRelationName,			Natts_pg_log,		Desc_pg_log);
+    formrdesc(TimeRelationName,			Natts_pg_time,		Desc_pg_time);
 
     /*
      *  If this isn't initdb time, then we want to initialize some index
@@ -1493,7 +1493,7 @@ RelationInitialize()
      */
     
     if (!IsBootstrapProcessingMode())
-	init_irels();
+		init_irels();
     
     MemoryContextSwitchTo(oldcxt);
 }
@@ -1534,163 +1534,163 @@ RelationInitialize()
 void
 init_irels()
 {
-    Size len;
-    int nread;
-    File fd;
-    Relation irel[Num_indices_bootstrap];
-    Relation ird;
-    Form_pg_am am;
-    Form_pg_class relform;
-    IndexStrategy strat;
-    RegProcedure *support;
-    int i;
-    int relno;
+    Size			len;
+    int				nread;
+    File			fd;
+    Relation		irel[Num_indices_bootstrap];
+    Relation		ird;
+    Form_pg_am		am;
+    Form_pg_class	relform;
+    IndexStrategy	strat;
+    RegProcedure	*support;
+    int				i;
+    int				relno;
     
     if ((fd = FileNameOpenFile(INIT_FILENAME, O_RDONLY, 0600)) < 0) {
-	write_irels();
-	return;
+		write_irels();
+		return;
     }
     
     (void) FileSeek(fd, 0L, SEEK_SET);
     
     for (relno = 0; relno < Num_indices_bootstrap; relno++) {
-	/* first read the relation descriptor length*/
-	if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
-	    write_irels();
-	    return;
-	}
+		/* first read the relation descriptor length*/
+		if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
+			write_irels();
+			return;
+		}
 	
-	ird = irel[relno] = (Relation) palloc(len);
-	memset(ird, 0, len); 
+		ird = irel[relno] = (Relation) palloc(len);
+		memset(ird, 0, len); 
 
-	/* then, read the Relation structure */
-	if ((nread = FileRead(fd, (char*)ird, len)) != len) {
-	    write_irels();
-	    return;
-	}
+		/* then, read the Relation structure */
+		if ((nread = FileRead(fd, (char*)ird, len)) != len) {
+			write_irels();
+			return;
+		}
 	
-	/* the file descriptor is not yet opened */
-	ird->rd_fd = -1;
+		/* the file descriptor is not yet opened */
+		ird->rd_fd = -1;
+		
+		/* lock info is not initialized */
+		ird->lockInfo = (char *) NULL;
+		
+		/* next, read the access method tuple form */
+		if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
+			write_irels();
+			return;
+		}
+		
+		am = (Form_pg_am) palloc(len);
+		if ((nread = FileRead(fd, (char*)am, len)) != len) {
+			write_irels();
+			return;
+		}
+		
+		ird->rd_am = am;
 	
-	/* lock info is not initialized */
-	ird->lockInfo = (char *) NULL;
-	
-	/* next, read the access method tuple form */
-	if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
-	    write_irels();
-	    return;
-	}
-	
-	am = (Form_pg_am) palloc(len);
-	if ((nread = FileRead(fd, (char*)am, len)) != len) {
-	    write_irels();
-	    return;
-	}
-	
-	ird->rd_am = am;
-	
-	/* next read the relation tuple form */
-	if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
-	    write_irels();
-	    return;
-	}
-	
-	relform = (Form_pg_class) palloc(len);
-	if ((nread = FileRead(fd, (char*)relform, len)) != len) {
-	    write_irels();
-	    return;
-	}
-	
-	ird->rd_rel = relform;
-	
-	/* initialize attribute tuple forms */
-	ird->rd_att = CreateTemplateTupleDesc(relform->relnatts);
+		/* next read the relation tuple form */
+		if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
+			write_irels();
+			return;
+		}
+		
+		relform = (Form_pg_class) palloc(len);
+		if ((nread = FileRead(fd, (char*)relform, len)) != len) {
+			write_irels();
+			return;
+		}
+		
+		ird->rd_rel = relform;
+		
+		/* initialize attribute tuple forms */
+		ird->rd_att = CreateTemplateTupleDesc(relform->relnatts);
 
-	/* next read all the attribute tuple form data entries */
-	len = ATTRIBUTE_TUPLE_SIZE;
-	for (i = 0; i < relform->relnatts; i++) {
-	    if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
-		write_irels();
-		return;
-	    }
-	    
-	    ird->rd_att->attrs[i] = (AttributeTupleForm) palloc(len);
-	    
-	    if ((nread = FileRead(fd, (char*)ird->rd_att->attrs[i], len)) != len) {
-		write_irels();
-		return;
-	    }
-	}
-	
-	/* next, read the index strategy map */
-	if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
-	    write_irels();
-	    return;
-	}
-	
-	strat = (IndexStrategy) palloc(len);
-	if ((nread = FileRead(fd, (char*)strat, len)) != len) {
-	    write_irels();
-	    return;
-	}
+		/* next read all the attribute tuple form data entries */
+		len = ATTRIBUTE_TUPLE_SIZE;
+		for (i = 0; i < relform->relnatts; i++) {
+			if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
+			write_irels();
+			return;
+			}
+			
+			ird->rd_att->attrs[i] = (AttributeTupleForm) palloc(len);
+			
+			if ((nread = FileRead(fd, (char*)ird->rd_att->attrs[i], len)) != len) {
+			write_irels();
+			return;
+			}
+		}
+		
+		/* next, read the index strategy map */
+		if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
+			write_irels();
+			return;
+		}
+		
+		strat = (IndexStrategy) palloc(len);
+		if ((nread = FileRead(fd, (char*)strat, len)) != len) {
+			write_irels();
+			return;
+		}
 	
 	/* oh, for god's sake... */
 #define SMD(i)	strat[0].strategyMapData[i].entry[0]
 	
-	/* have to reinit the function pointers in the strategy maps */
-	for (i = 0; i < am->amstrategies; i++)
-	    fmgr_info(SMD(i).sk_procedure,
-		      &(SMD(i).sk_func), &(SMD(i).sk_nargs));
-	
-	
-	/* use a real field called rd_istrat instead of the 
-	   bogosity of hanging invisible fields off the end of a structure
-	   - jolly */
-	ird->rd_istrat = strat;
+		/* have to reinit the function pointers in the strategy maps */
+		for (i = 0; i < am->amstrategies; i++)
+			fmgr_info(SMD(i).sk_procedure,
+				  &(SMD(i).sk_func), &(SMD(i).sk_nargs));
+		
+		
+		/* use a real field called rd_istrat instead of the 
+		   bogosity of hanging invisible fields off the end of a structure
+		   - jolly */
+		ird->rd_istrat = strat;
 
-	/* finally, read the vector of support procedures */
-	if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
-	    write_irels();
-	    return;
-	}
+		/* finally, read the vector of support procedures */
+		if ((nread = FileRead(fd, (char*)&len, sizeof(int))) != sizeof(int)) {
+			write_irels();
+			return;
+		}
+		
+		support = (RegProcedure *) palloc(len);
+		if ((nread = FileRead(fd, (char*)support, len)) != len) {
+			write_irels();
+			return;
+		}
 	
-	support = (RegProcedure *) palloc(len);
-	if ((nread = FileRead(fd, (char*)support, len)) != len) {
-	    write_irels();
-	    return;
-	}
-	
-	/*
-	p += sizeof(IndexStrategy);
-	*((RegProcedure **) p) = support;
-	*/
+		/*
+		p += sizeof(IndexStrategy);
+		*((RegProcedure **) p) = support;
+		*/
 
-	ird->rd_support = support;
-	
-	RelationCacheInsert(ird);
+		ird->rd_support = support;
+		
+		RelationCacheInsert(ird);
     }
 }
 
 void
 write_irels()
 {
-    int len;
-    int nwritten;
-    File fd;
-    Relation irel[Num_indices_bootstrap];
-    Relation ird;
-    Form_pg_am am;
-    Form_pg_class relform;
-    IndexStrategy strat;
-    RegProcedure *support;
-    ProcessingMode oldmode;
-    int i;
-    int relno;
-    RelationBuildDescInfo bi;
+    int						len;
+    int						nwritten;
+    File					fd;
+    Relation				irel[Num_indices_bootstrap];
+    Relation				ird;
+    Form_pg_am				am;
+    Form_pg_class			relform;
+    IndexStrategy			strat;
+    RegProcedure			*support;
+    ProcessingMode			oldmode;
+    int						i;
+    int						relno;
+    RelationBuildDescInfo	bi;
     
     fd = FileNameOpenFile(INIT_FILENAME, O_WRONLY|O_CREAT|O_TRUNC, 0600);
     if (fd < 0)
-	elog(FATAL, "cannot create init file %s", INIT_FILENAME);
+		elog(FATAL, "cannot create init file %s", INIT_FILENAME);
     
     (void) FileSeek(fd, 0L, SEEK_SET);
     
@@ -1705,96 +1705,96 @@ write_irels()
     oldmode = GetProcessingMode();
     SetProcessingMode(BootstrapProcessing);
     
-    bi.infotype = INFO_RELNAME;
-    bi.i.info_name = AttributeNumIndex;
-    irel[0] = RelationBuildDesc(bi);
-    irel[0]->rd_isnailed = true;
+    bi.infotype				= INFO_RELNAME;
+    bi.i.info_name			= AttributeNumIndex;
+    irel[0]					= RelationBuildDesc(bi);
+    irel[0]->rd_isnailed	= true;
     
-    bi.i.info_name = ClassNameIndex;
-    irel[1] = RelationBuildDesc(bi);
-    irel[1]->rd_isnailed = true;
+    bi.i.info_name			= ClassNameIndex;
+    irel[1]					= RelationBuildDesc(bi);
+    irel[1]->rd_isnailed	= true;
     
-    bi.i.info_name = ClassOidIndex;
-    irel[2] = RelationBuildDesc(bi);
-    irel[2]->rd_isnailed = true;
+    bi.i.info_name			= ClassOidIndex;
+    irel[2]					= RelationBuildDesc(bi);
+    irel[2]->rd_isnailed	= true;
     
     SetProcessingMode(oldmode);
     
     /* nail the descriptor in the cache */
     for (relno = 0; relno < Num_indices_bootstrap; relno++) {
-	ird = irel[relno];
+		ird = irel[relno];
 	
-	/* save the volatile fields in the relation descriptor */
-	am = ird->rd_am;
-	ird->rd_am = (Form_pg_am) NULL;
-	relform = ird->rd_rel;
-	ird->rd_rel = (Form_pg_class) NULL;
-	strat = ird->rd_istrat;
-	support = ird->rd_support;
+		/* save the volatile fields in the relation descriptor */
+		am			= ird->rd_am;
+		ird->rd_am	= (Form_pg_am) NULL;
+		relform		= ird->rd_rel;
+		ird->rd_rel = (Form_pg_class) NULL;
+		strat		= ird->rd_istrat;
+		support		= ird->rd_support;
 	
-	/* first write the relation descriptor , excluding strategy and support */
-	len = sizeof(RelationData);
+		/* first write the relation descriptor , excluding strategy and support */
+		len = sizeof(RelationData);
+		
+		/* first, write the relation descriptor length */
+		if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
+			!= sizeof(int))
+			elog(FATAL, "cannot write init file -- descriptor length");
+		
+		/* next, write out the Relation structure */
+		if ((nwritten = FileWrite(fd, (char*) ird, len)) != len)
+			elog(FATAL, "cannot write init file -- reldesc");
+		
+		/* next, write the access method tuple form */
+		len = sizeof(FormData_pg_am);
+		if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
+			!= sizeof(int))
+			elog(FATAL, "cannot write init file -- am tuple form length");
+		
+		if ((nwritten = FileWrite(fd, (char*) am, len)) != len)
+			elog(FATAL, "cannot write init file -- am tuple form");
 	
-	/* first, write the relation descriptor length */
-	if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
-	    != sizeof(int))
-	    elog(FATAL, "cannot write init file -- descriptor length");
+		/* next write the relation tuple form */
+		len = sizeof(FormData_pg_class);
+		if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
+			!= sizeof(int))
+			elog(FATAL, "cannot write init file -- relation tuple form length");
+		
+		if ((nwritten = FileWrite(fd, (char*) relform, len)) != len)
+			elog(FATAL, "cannot write init file -- relation tuple form");
+		
+		/* next, do all the attribute tuple form data entries */
+		len = ATTRIBUTE_TUPLE_SIZE;
+		for (i = 0; i < relform->relnatts; i++) {
+			if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
+				!= sizeof(int))
+				elog(FATAL, "cannot write init file -- length of attdesc %d", i);
+			if ((nwritten = FileWrite(fd, (char*) ird->rd_att->attrs[i], len))
+				!= len)
+				elog(FATAL, "cannot write init file -- attdesc %d", i);
+		}
+		
+		/* next, write the index strategy map */
+		len = AttributeNumberGetIndexStrategySize(relform->relnatts,
+												  am->amstrategies);
+		if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
+			!= sizeof(int))
+			elog(FATAL, "cannot write init file -- strategy map length");
 	
-	/* next, write out the Relation structure */
-	if ((nwritten = FileWrite(fd, (char*) ird, len)) != len)
-	    elog(FATAL, "cannot write init file -- reldesc");
-	
-	/* next, write the access method tuple form */
-	len = sizeof(FormData_pg_am);
-	if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
-	    != sizeof(int))
-	    elog(FATAL, "cannot write init file -- am tuple form length");
-	
-	if ((nwritten = FileWrite(fd, (char*) am, len)) != len)
-	    elog(FATAL, "cannot write init file -- am tuple form");
-	
-	/* next write the relation tuple form */
-	len = sizeof(FormData_pg_class);
-	if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
-	    != sizeof(int))
-	    elog(FATAL, "cannot write init file -- relation tuple form length");
-	
-	if ((nwritten = FileWrite(fd, (char*) relform, len)) != len)
-	    elog(FATAL, "cannot write init file -- relation tuple form");
-	
-	/* next, do all the attribute tuple form data entries */
-	len = ATTRIBUTE_TUPLE_SIZE;
-	for (i = 0; i < relform->relnatts; i++) {
-	    if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
-		!= sizeof(int))
-		elog(FATAL, "cannot write init file -- length of attdesc %d", i);
-	    if ((nwritten = FileWrite(fd, (char*) ird->rd_att->attrs[i], len))
-		!= len)
-		elog(FATAL, "cannot write init file -- attdesc %d", i);
-	}
-	
-	/* next, write the index strategy map */
-	len = AttributeNumberGetIndexStrategySize(relform->relnatts,
-						  am->amstrategies);
-	if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
-	    != sizeof(int))
-	    elog(FATAL, "cannot write init file -- strategy map length");
-	
-	if ((nwritten = FileWrite(fd, (char*) strat, len)) != len)
-	    elog(FATAL, "cannot write init file -- strategy map");
-	
-	/* finally, write the vector of support procedures */
-	len = relform->relnatts * (am->amsupport * sizeof(RegProcedure));
-	if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
-	    != sizeof(int))
-	    elog(FATAL, "cannot write init file -- support vector length");
-	
-	if ((nwritten = FileWrite(fd, (char*) support, len)) != len)
-	    elog(FATAL, "cannot write init file -- support vector");
-	
-	/* restore volatile fields */
-	ird->rd_am = am;
-	ird->rd_rel = relform;
+		if ((nwritten = FileWrite(fd, (char*) strat, len)) != len)
+			elog(FATAL, "cannot write init file -- strategy map");
+		
+		/* finally, write the vector of support procedures */
+		len = relform->relnatts * (am->amsupport * sizeof(RegProcedure));
+		if ((nwritten = FileWrite(fd, (char*) &len, sizeof(int)))
+			!= sizeof(int))
+			elog(FATAL, "cannot write init file -- support vector length");
+		
+		if ((nwritten = FileWrite(fd, (char*) support, len)) != len)
+			elog(FATAL, "cannot write init file -- support vector");
+		
+		/* restore volatile fields */
+		ird->rd_am	= am;
+		ird->rd_rel = relform;
     }
     
     (void) FileClose(fd);
