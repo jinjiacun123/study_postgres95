@@ -90,7 +90,7 @@ CreateTupleDesc(int natts, AttributeTupleForm* attrs)
      */
     AssertArg(natts >= 1);
     
-    desc = (TupleDesc) palloc(sizeof(struct tupleDesc));
+    desc		= (TupleDesc) palloc(sizeof(struct tupleDesc));
     desc->attrs = attrs;
     desc->natts = natts;    
 
@@ -112,9 +112,9 @@ CreateTupleDescCopy(TupleDesc tupdesc)
     TupleDesc desc;
     int i, size;
 
-    desc = (TupleDesc) palloc(sizeof(struct tupleDesc));
+    desc		= (TupleDesc) palloc(sizeof(struct tupleDesc));
     desc->natts = tupdesc->natts;
-    size = desc->natts * sizeof (AttributeTupleForm);
+    size		= desc->natts * sizeof (AttributeTupleForm);
     desc->attrs = (AttributeTupleForm*) palloc(size);
     for (i=0;i<desc->natts;i++) {
 		desc->attrs[i] = (AttributeTupleForm)palloc(ATTRIBUTE_TUPLE_SIZE);

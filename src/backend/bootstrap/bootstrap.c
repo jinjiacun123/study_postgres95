@@ -73,7 +73,7 @@
 #define	NUMSQR	529
 #define	NUMCUBE	12167
 
-char            *strtable [STRTABLESIZE]; 
+char        *strtable [STRTABLESIZE]; 
 hashnode	*hashtable [HASHTABLESIZE];
 
 static int	strtable_end = -1;    /* Tells us last occupied string space */
@@ -125,7 +125,7 @@ struct	typmap {			/* a hack */
 };
 
 static	struct	typmap	**Typ = (struct typmap **)NULL;
-static	struct	typmap	*Ap = (struct typmap *)NULL;
+static	struct	typmap	*Ap   = (struct typmap *)NULL;
      
 static	int		Warnings = 0;
 static	char	Blanks[MAXATTR];
@@ -133,11 +133,11 @@ static	char	Blanks[MAXATTR];
 Relation	reldesc;					/* current relation descriptor */
 static char *relname;                   /* current relation name */
 
-AttributeTupleForm attrtypes[MAXATTR];  /* points to attribute info */
-static char		   *values[MAXATTR];			/* cooresponding attribute values */
+AttributeTupleForm attrtypes[MAXATTR];		/* points to attribute info */
+static char		   *values[MAXATTR];		/* cooresponding attribute values */
 int				   numattr;					/* number of attributes for cur. rel */
 #ifdef OPENLINK_PATCHES
-extern int		   fsyncOff;                 /* do not fsync the database */
+extern int		   fsyncOff;                /* do not fsync the database */
 #endif
 
 #if defined(WIN32) || defined(PORTNAME_next)
@@ -151,7 +151,7 @@ static sigjmp_buf Warn_restart;
 int		DebugMode;
 static GlobalMemory nogc = (GlobalMemory) NULL;	/* special no-gc mem context */
 
-extern	int	optind;
+extern	int		optind;
 extern	char	*optarg;
      
 /*
@@ -558,28 +558,28 @@ InsertOneTuple(Oid objectid)
     int i;
     
     if (DebugMode) {
-	printf("InsertOneTuple oid %d, %d attrs\n", objectid, numattr);
-	fflush(stdout);
+		printf("InsertOneTuple oid %d, %d attrs\n", objectid, numattr);
+		fflush(stdout);
     }
     
     tupDesc = CreateTupleDesc(numattr,attrtypes); 
-    tuple = heap_formtuple(tupDesc,(Datum*)values,Blanks);     
+    tuple	= heap_formtuple(tupDesc,(Datum*)values,Blanks); 
     pfree(tupDesc); /* just free's tupDesc, not the attrtypes */
 
     if(objectid !=(Oid)0) {
-	tuple->t_oid=objectid;
+		tuple->t_oid = objectid;
     }
     heap_insert(reldesc, tuple);
     pfree(tuple);
     if (DebugMode) {
-	printf("End InsertOneTuple, objectid=%d\n", objectid);
-	fflush(stdout);
+		printf("End InsertOneTuple, objectid=%d\n", objectid);
+		fflush(stdout);
     }
     /*
      * Reset blanks for next tuple
      */
     for (i = 0; i<numattr; i++)
-	Blanks[i] = ' ';
+		Blanks[i] = ' ';
 }
 
 /* ----------------
@@ -773,10 +773,10 @@ AttributeTupleForm  /* XXX */
 AllocateAttribute()
 {
     AttributeTupleForm attribute =
-	(AttributeTupleForm)malloc(ATTRIBUTE_TUPLE_SIZE);
+		(AttributeTupleForm)malloc(ATTRIBUTE_TUPLE_SIZE);
     
     if (!PointerIsValid(attribute)) {
-	elog(FATAL, "AllocateAttribute: malloc failed");
+		elog(FATAL, "AllocateAttribute: malloc failed");
     }
     memset(attribute, 0, ATTRIBUTE_TUPLE_SIZE);
     
@@ -826,16 +826,16 @@ int
 EnterString (char *str)
 {
     hashnode	*node;
-    int        len;
+    int         len;
     
     len= strlen(str);
 
     node = FindStr(str, len, 0);
     if (node) {
-	return (node->strnum);
+		return (node->strnum);
     } else {
-	node = AddStr(str, len, 0);
-	return (node->strnum);
+		node = AddStr(str, len, 0);
+		return (node->strnum);
     }
 }
 
@@ -914,13 +914,13 @@ hashnode *
 AddStr(char *str, int strlength, int mderef)
 {
     hashnode	*temp, *trail, *newnode;
-    int		hashresult;
-    int		len;
+    int			hashresult;
+    int			len;
     
     if (++strtable_end == STRTABLESIZE) {
-	/* Error, string table overflow, so we Punt */
-	elog(FATAL, 
-	     "There are too many string constants and identifiers for the compiler to handle.");
+		/* Error, string table overflow, so we Punt */
+		elog(FATAL, 
+			 "There are too many string constants and identifiers for the compiler to handle.");
 
 
     }
@@ -934,30 +934,30 @@ AddStr(char *str, int strlength, int mderef)
      */
     
     if ((len = strlength + 1) < NAMEDATALEN)
-	len = NAMEDATALEN;
+		len = NAMEDATALEN;
     
     strtable [strtable_end] = malloc((unsigned) len);
     strcpy (strtable[strtable_end], str);
     
     /* Now put a node in the hash table */
     
-    newnode = (hashnode*)malloc(sizeof(hashnode)*1);
+    newnode			= (hashnode*)malloc(sizeof(hashnode)*1);
     newnode->strnum = strtable_end;
-    newnode->next = NULL;
+    newnode->next	= NULL;
     
     /* Find out where it goes */
     
     hashresult = CompHash (str, strlength);
     if (hashtable [hashresult] == NULL) {
-	hashtable [hashresult] = newnode;
+		hashtable [hashresult] = newnode;
     } else {			/* There is something in the list */
-	trail = hashtable [hashresult];
-	temp = trail->next;
-	while (temp != NULL) {
-	    trail = temp;
-	    temp = temp->next;
-	}
-	trail->next = newnode;
+		trail = hashtable [hashresult];
+		temp = trail->next;
+		while (temp != NULL) {
+			trail = temp;
+			temp = temp->next;
+		}
+		trail->next = newnode;
     }
     return (newnode);
 }

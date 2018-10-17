@@ -136,7 +136,7 @@ Oid newoid()
     
     GetNewObjectId(&lastoid);
     if (! OidIsValid(lastoid))
-	elog(WARN, "newoid: GetNewObjectId returns invalid oid");
+		elog(WARN, "newoid: GetNewObjectId returns invalid oid");
     return lastoid;
 }
 

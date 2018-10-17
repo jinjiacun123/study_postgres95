@@ -20,9 +20,9 @@
  * in every process.  Shared memory "pointers" are actually
  * offsets relative to the start of the shared memory region(s).
  */
-typedef unsigned long SHMEM_OFFSET;
-#define INVALID_OFFSET (-1)
-#define BAD_LOCATION (-1)
+typedef unsigned long	SHMEM_OFFSET;
+#define INVALID_OFFSET	(-1)
+#define BAD_LOCATION	(-1)
 
 /* start of the lowest shared memory region.  For now, assume that
  * there is only one shared memory region 

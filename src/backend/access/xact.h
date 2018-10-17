@@ -27,11 +27,11 @@
  * ----------------
  */
 typedef struct TransactionStateData {
-    TransactionId	transactionIdData;
-    CommandId		commandId;
+    TransactionId		transactionIdData;
+    CommandId			commandId;
     AbsoluteTime		startTime;
-    int			state;
-    int			blockState;
+    int					state;
+    int					blockState;
 } TransactionStateData;
 
 /* ----------------
@@ -39,10 +39,10 @@ typedef struct TransactionStateData {
  * ----------------
  */
 #define TRANS_DEFAULT		0
-#define TRANS_START		1
+#define TRANS_START			1
 #define TRANS_INPROGRESS	2
 #define TRANS_COMMIT		3
-#define TRANS_ABORT		4
+#define TRANS_ABORT			4
 #define TRANS_DISABLED		5
 
 /* ----------------
@@ -52,7 +52,7 @@ typedef struct TransactionStateData {
 #define TBLOCK_DEFAULT		0
 #define TBLOCK_BEGIN		1
 #define TBLOCK_INPROGRESS	2
-#define TBLOCK_END		3
+#define TBLOCK_END			3
 #define TBLOCK_ABORT		4
 #define TBLOCK_ENDABORT		5
 
@@ -106,7 +106,7 @@ extern TransactionId DisabledTransactionId;
 extern bool TransactionIdIsValid(TransactionId transactionId);
 extern void StoreInvalidTransactionId(TransactionId *destination);
 extern void TransactionIdStore(TransactionId transactionId,
-			       TransactionId *destination);
+								   TransactionId *destination);
 extern bool TransactionIdEquals(TransactionId id1, TransactionId id2);
 extern bool TransactionIdIsLessThan(TransactionId id1, TransactionId id2);
 extern void TransactionIdIncrement(TransactionId *transactionId);

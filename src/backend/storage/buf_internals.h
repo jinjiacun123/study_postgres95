@@ -37,36 +37,36 @@ extern int Num_Descriptors;
 /*
  * Flags for buffer descriptors
  */
-#define BM_DIRTY   		(1 << 0)
-#define BM_PRIVATE 		(1 << 1)
-#define BM_VALID 		(1 << 2)
+#define BM_DIRTY			(1 << 0)
+#define BM_PRIVATE			(1 << 1)
+#define BM_VALID			(1 << 2)
 #define BM_DELETED   		(1 << 3)
-#define BM_FREE			(1 << 4)
+#define BM_FREE				(1 << 4)
 #define BM_IO_IN_PROGRESS	(1 << 5)
-#define BM_IO_ERROR		(1 << 6)
+#define BM_IO_ERROR			(1 << 6)
 
 typedef bits16 BufFlags;
 
 typedef struct sbufdesc BufferDesc;
 typedef struct sbufdesc BufferHdr;
-typedef struct buftag BufferTag;
+typedef struct buftag	BufferTag;
 /* long * so alignment will be correct */
 typedef long **BufferBlock;
 
 struct buftag{
-  LRelId	relId;
+  LRelId		relId;
   BlockNumber   blockNum;  /* blknum relative to begin of reln */
 };
 
 #define CLEAR_BUFFERTAG(a)\
-  (a)->relId.dbId = InvalidOid; \
-  (a)->relId.relId = InvalidOid; \
-  (a)->blockNum = InvalidBlockNumber
+  (a)->relId.dbId	= InvalidOid; \
+  (a)->relId.relId	= InvalidOid; \
+  (a)->blockNum		= InvalidBlockNumber
 
 #define INIT_BUFFERTAG(a,xx_reln,xx_blockNum) \
 { \
   (a)->blockNum = xx_blockNum;\
-  (a)->relId = RelationGetLRelId(xx_reln); \
+  (a)->relId	= RelationGetLRelId(xx_reln); \
 }
 
 #define COPY_BUFFERTAG(a,b)\

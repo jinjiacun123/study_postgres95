@@ -40,10 +40,10 @@
  */
 
 typedef struct _MdfdVec {
-    int				mdfd_vfd; /* fd number in vfd pool */
-    uint16			mdfd_flags; /* clean, dirty */
-    int				mdfd_lstbcnt; /* most recent block count */
-    struct _MdfdVec	*mdfd_chain; /* for large relations */
+    int				mdfd_vfd;		/* fd number in vfd pool */
+    uint16			mdfd_flags;		/* clean, dirty */
+    int				mdfd_lstbcnt;	/* most recent block count */
+    struct _MdfdVec	*mdfd_chain;	/* for large relations */
 } MdfdVec;
 
 static int				Nfds = 100;
@@ -81,7 +81,7 @@ mdinit()
     if (MdCxt == (MemoryContext) NULL)
 		return (SM_FAIL);
 
-    oldcxt = MemoryContextSwitchTo(MdCxt);
+    oldcxt	 = MemoryContextSwitchTo(MdCxt);
     Md_fdvec = (MdfdVec *) palloc(Nfds * sizeof(MdfdVec));
     (void) MemoryContextSwitchTo(oldcxt);
 
@@ -102,7 +102,7 @@ mdcreate(Relation reln)
     extern bool IsBootstrapProcessingMode();
 
     path = relpath(&(reln->rd_rel->relname.data[0]));
-    fd = FileNameOpenFile(path, O_RDWR|O_CREAT|O_EXCL, 0600);
+    fd   = FileNameOpenFile(path, O_RDWR|O_CREAT|O_EXCL, 0600);
 
     /*
      *  If the file already exists and is empty, we pretend that the

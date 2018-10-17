@@ -162,36 +162,36 @@ int
 mmcreate(Relation reln)
 {
     MMRelHashEntry *entry;
-    bool found;
-    MMRelTag tag;
+    bool			found;
+    MMRelTag		tag;
 
     SpinAcquire(MMCacheLock);
 
     if (*MMCurRelno == MMNRELATIONS) {
-	SpinRelease(MMCacheLock);
-	return (SM_FAIL);
+		SpinRelease(MMCacheLock);
+		return (SM_FAIL);
     }
 
     (*MMCurRelno)++;
 
     tag.mmrt_relid = reln->rd_id;
     if (reln->rd_rel->relisshared)
-	tag.mmrt_dbid = (Oid) 0;
+		tag.mmrt_dbid = (Oid) 0;
     else
-	tag.mmrt_dbid = MyDatabaseId;
+		tag.mmrt_dbid = MyDatabaseId;
 
     entry = (MMRelHashEntry *) hash_search(MMRelCacheHT,
-					   (char *) &tag, HASH_ENTER, &found);
+											(char *) &tag, HASH_ENTER, &found);
 
     if (entry == (MMRelHashEntry *) NULL) {
-	SpinRelease(MMCacheLock);
-	elog(FATAL, "main memory storage mgr rel cache hash table corrupt");
+		SpinRelease(MMCacheLock);
+		elog(FATAL, "main memory storage mgr rel cache hash table corrupt");
     }
 
     if (found) {
-	/* already exists */
-	SpinRelease(MMCacheLock);
-	return (SM_FAIL);
+		/* already exists */
+		SpinRelease(MMCacheLock);
+		return (SM_FAIL);
     }
 
     entry->mmrhe_nblocks = 0;

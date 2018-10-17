@@ -54,51 +54,51 @@
  * ----------------
  */
 Size
-ComputeDataSize(TupleDesc tupleDesc,
-		Datum value[],
-		char nulls[])
+ComputeDataSize(TupleDesc	tupleDesc,
+				Datum		value[],
+				char		nulls[])
 {
     uint32 length;
     int i;
-    int numberOfAttributes = tupleDesc->natts;
+    int numberOfAttributes  = tupleDesc->natts;
     AttributeTupleForm *att = tupleDesc->attrs;
     
     for (length = 0, i = 0; i < numberOfAttributes; i++) {
-	if (nulls[i] != ' ') continue;
+		if (nulls[i] != ' ') continue;
 	    
-	switch (att[i]->attlen) {
-	case -1:
-	    /*
-	     * This is the size of the disk representation and so
-	     * must include the additional sizeof long.
-	     */
-	    if (att[i]->attalign == 'd') {
-		length = DOUBLEALIGN(length)
-		    + VARSIZE(DatumGetPointer(value[i]));
-	    } else {
-		length = INTALIGN(length)
-		    + VARSIZE(DatumGetPointer(value[i]));
-	    }
-	    break;
-	case sizeof(char):
-	    length++;
-	    break;
-	case sizeof(short):
-	    length = SHORTALIGN(length + sizeof(short));
-	    break;
-	case sizeof(int32):
-	    length = INTALIGN(length + sizeof(int32));
-	    break;
-	default:
-	    if (att[i]->attlen < sizeof(int32))
-		elog(WARN, "ComputeDataSize: attribute %d has len %d",
-		     i, att[i]->attlen);
-	    if (att[i]->attalign == 'd')
-		length = DOUBLEALIGN(length) + att[i]->attlen;
-	    else
-		length = LONGALIGN(length) + att[i]->attlen;
-	    break;
-	}
+		switch (att[i]->attlen) {
+		case -1:
+			/*
+			 * This is the size of the disk representation and so
+			 * must include the additional sizeof long.
+			 */
+			if (att[i]->attalign == 'd') {
+				length = DOUBLEALIGN(length)
+						+ VARSIZE(DatumGetPointer(value[i]));
+			} else {
+				length = INTALIGN(length)
+						+ VARSIZE(DatumGetPointer(value[i]));
+			}
+			break;
+		case sizeof(char):
+			length++;
+			break;
+		case sizeof(short):
+			length = SHORTALIGN(length + sizeof(short));
+			break;
+		case sizeof(int32):
+			length = INTALIGN(length + sizeof(int32));
+			break;
+		default:
+			if (att[i]->attlen < sizeof(int32))
+				elog(WARN, "ComputeDataSize: attribute %d has len %d",
+					 i, att[i]->attlen);
+			if (att[i]->attalign == 'd')
+				length = DOUBLEALIGN(length) + att[i]->attlen;
+			else
+				length = LONGALIGN(length) + att[i]->attlen;
+			break;
+		}
     }
     
     return length;
@@ -109,23 +109,23 @@ ComputeDataSize(TupleDesc tupleDesc,
  * ----------------
  */
 void
-DataFill(char *data,
-	 TupleDesc tupleDesc,
-	 Datum value[],
-	 char nulls[],
-	 char *infomask,
-	 bits8 bit[])
+DataFill(char		*data,
+		 TupleDesc	tupleDesc,
+		 Datum		value[],
+		 char		nulls[],
+		 char		*infomask,
+		 bits8		bit[])
 {
-    bits8	*bitP;
-    int		bitmask;
-    uint32	length;
-    int		i;
-    int         numberOfAttributes = tupleDesc->natts;
-    AttributeTupleForm* att = tupleDesc->attrs;
+    bits8				*bitP;
+    int					bitmask;
+    uint32				length;
+    int					i;
+    int					numberOfAttributes	= tupleDesc->natts;
+    AttributeTupleForm* att					= tupleDesc->attrs;
     
     if (bit != NULL) {
-	bitP = &bit[-1];
-	bitmask = CSIGNBIT;
+		bitP	= &bit[-1];
+		bitmask = CSIGNBIT;
     }
     
     *infomask = 0;
@@ -133,67 +133,67 @@ DataFill(char *data,
     for (i = 0; i < numberOfAttributes; i++) {
 		if (bit != NULL) {
 			if (bitmask != CSIGNBIT) {
-			bitmask <<= 1;
+				bitmask <<= 1;
 			} else {
-			bitP += 1;
-			*bitP = 0x0;
-			bitmask = 1;
+				bitP += 1;
+				*bitP = 0x0;
+				bitmask = 1;
 			}
 			
 			if (nulls[i] == 'n') {
-			*infomask |= HEAP_HASNULL;
-			continue;
+				*infomask |= HEAP_HASNULL;
+				continue;
 			}
 			
 			*bitP |= bitmask;
 		}
 	    
-	switch (att[i]->attlen) {
-		case -1:
-			*infomask |= HEAP_HASVARLENA;
-			if (att[i]->attalign=='d') {
-				data = (char *) DOUBLEALIGN(data);
-			} else {
+		switch (att[i]->attlen) {
+			case -1:
+				*infomask |= HEAP_HASVARLENA;
+				if (att[i]->attalign=='d') {
+					data = (char *) DOUBLEALIGN(data);
+				} else {
+					data = (char *) INTALIGN(data);
+				}
+				length = VARSIZE(DatumGetPointer(value[i]));
+				memmove(data, DatumGetPointer(value[i]),length);
+				data += length;
+			break;
+			case sizeof(char):
+				*data = att[i]->attbyval ?
+						DatumGetChar(value[i]) : *((char *) value[i]);
+				data += sizeof(char);
+			break;
+			case sizeof(int16):
+				data			 = (char *) SHORTALIGN(data);
+				* (short *) data = (att[i]->attbyval ?
+									DatumGetInt16(value[i]) :
+									*((short *) value[i]));
+				data			 += sizeof(short);
+			break;
+			case sizeof(int32):
 				data = (char *) INTALIGN(data);
-			}
-			length = VARSIZE(DatumGetPointer(value[i]));
-			memmove(data, DatumGetPointer(value[i]),length);
-			data += length;
-			break;
-		case sizeof(char):
-			*data = att[i]->attbyval ?
-			DatumGetChar(value[i]) : *((char *) value[i]);
-			data += sizeof(char);
-			break;
-		case sizeof(int16):
-			data = (char *) SHORTALIGN(data);
-			* (short *) data = (att[i]->attbyval ?
-					DatumGetInt16(value[i]) :
-					*((short *) value[i]));
-			data += sizeof(short);
-			break;
-		case sizeof(int32):
-			data = (char *) INTALIGN(data);
-			* (int32 *) data = (att[i]->attbyval ?
-					DatumGetInt32(value[i]) :
-					*((int32 *) value[i]));
-			data += sizeof(int32);
-			break;
-		default:
-			if (att[i]->attlen < sizeof(int32))
-			elog(WARN, "DataFill: attribute %d has len %d",
-				 i, att[i]->attlen);
-			if (att[i]->attalign == 'd') {
-				data = (char *) DOUBLEALIGN(data);
-				memmove(data, DatumGetPointer(value[i]),
-					att[i]->attlen);
-				data += att[i]->attlen;
-			} else {
-				data = (char *) LONGALIGN(data);
-				memmove(data, DatumGetPointer(value[i]),
-					att[i]->attlen);
-				data += att[i]->attlen;
-			}
+				* (int32 *) data = (att[i]->attbyval ?
+									DatumGetInt32(value[i]) :
+									*((int32 *) value[i]));
+				data += sizeof(int32);
+				break;
+			default:
+				if (att[i]->attlen < sizeof(int32))
+					elog(WARN, "DataFill: attribute %d has len %d",
+						 i, att[i]->attlen);
+				if (att[i]->attalign == 'd') {
+					data = (char *) DOUBLEALIGN(data);
+					memmove(data, DatumGetPointer(value[i]),
+							att[i]->attlen);
+					data += att[i]->attlen;
+				} else {
+					data = (char *) LONGALIGN(data);
+					memmove(data, DatumGetPointer(value[i]),
+							att[i]->attlen);
+					data += att[i]->attlen;
+				}
 				
 		}
     }
@@ -217,28 +217,28 @@ heap_attisnull(HeapTuple tup, int attnum)
     if (HeapTupleNoNulls(tup)) return(0);
     
     if (attnum > 0) {
-	return(att_isnull(attnum - 1, tup->t_bits));
+		return(att_isnull(attnum - 1, tup->t_bits));
     } else
-	switch (attnum) {
-	case SelfItemPointerAttributeNumber:
-	case ObjectIdAttributeNumber:
-	case MinTransactionIdAttributeNumber:
-	case MinCommandIdAttributeNumber:
-	case MaxTransactionIdAttributeNumber:
-	case MaxCommandIdAttributeNumber:
-	case ChainItemPointerAttributeNumber:
-	case AnchorItemPointerAttributeNumber:
-	case MinAbsoluteTimeAttributeNumber:
-	case MaxAbsoluteTimeAttributeNumber:
-	case VersionTypeAttributeNumber:
-	    break;
-	    
-	case 0:
-	    elog(WARN, "heap_attisnull: zero attnum disallowed");
-	    
-	default:
-	    elog(WARN, "heap_attisnull: undefined negative attnum");
-	}
+		switch (attnum) {
+			case SelfItemPointerAttributeNumber:
+			case ObjectIdAttributeNumber:
+			case MinTransactionIdAttributeNumber:
+			case MinCommandIdAttributeNumber:
+			case MaxTransactionIdAttributeNumber:
+			case MaxCommandIdAttributeNumber:
+			case ChainItemPointerAttributeNumber:
+			case AnchorItemPointerAttributeNumber:
+			case MinAbsoluteTimeAttributeNumber:
+			case MaxAbsoluteTimeAttributeNumber:
+			case VersionTypeAttributeNumber:
+				 break;
+				
+			case 0:
+				elog(WARN, "heap_attisnull: zero attnum disallowed");
+				
+			default:
+				elog(WARN, "heap_attisnull: undefined negative attnum");
+		}
     
     return (0);
 }
@@ -811,16 +811,16 @@ heap_deformtuple(HeapTuple tuple,
  */
 HeapTuple
 heap_formtuple(TupleDesc tupleDescriptor,
-	       Datum value[],
-	       char nulls[])
+			   Datum	 value[],
+			   char		 nulls[])
 {
-    char	*tp;	/* tuple pointer */
+    char		*tp;	/* tuple pointer */
     HeapTuple	tuple;	/* return tuple */
-    int		bitmaplen;
-    long	len;
-    int		hoff;
-    bool	hasnull = false;
-    int		i;
+    int			bitmaplen;
+    long		len;
+    int			hoff;
+    bool		hasnull = false;
+    int			i;
     int         numberOfAttributes = tupleDescriptor->natts;    
 
     len = sizeof *tuple - sizeof tuple->t_bits;
@@ -842,16 +842,16 @@ heap_formtuple(TupleDesc tupleDescriptor,
 
     len += ComputeDataSize(tupleDescriptor, value, nulls);
     
-    tp = (char *) palloc(len);
-    tuple = (HeapTuple) tp;
+    tp		= (char *) palloc(len);
+    tuple	= (HeapTuple) tp;
 
     memset(tp, 0, (int)len);
     
-    tuple->t_len = 	len;
-    tuple->t_natts = 	numberOfAttributes;
-    tuple->t_hoff = hoff;
-    tuple->t_tmin = INVALID_ABSTIME;
-    tuple->t_tmax = CURRENT_ABSTIME;
+    tuple->t_len	= len;
+    tuple->t_natts	= numberOfAttributes;
+    tuple->t_hoff	= hoff;
+    tuple->t_tmin	= INVALID_ABSTIME;
+    tuple->t_tmax	= CURRENT_ABSTIME;
     
     DataFill((char *)tuple + tuple->t_hoff,
 			 tupleDescriptor,

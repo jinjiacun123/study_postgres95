@@ -199,49 +199,49 @@ refcount = %ld, file: %s, line: %d\n",
  *	semops in the system.
  */
 static Buffer
-ReadBufferWithBufferLock(Relation reln,
-			 BlockNumber blockNum,
-			 bool bufferLockHeld)
+ReadBufferWithBufferLock(Relation	 reln,
+						 BlockNumber blockNum,
+						 bool		 bufferLockHeld)
 {
     BufferDesc *bufHdr;	  
-    int		extend;   /* extending the file by one block */
-    int		status;
-    bool	found;
-    bool	isLocalBuf;
+    int			extend;   /* extending the file by one block */
+    int			status;
+    bool		found;
+    bool		isLocalBuf;
 
-    extend = (blockNum == P_NEW);
-    isLocalBuf = reln->rd_islocal;
+    extend		= (blockNum == P_NEW);
+    isLocalBuf	= reln->rd_islocal;
 
     if (isLocalBuf) {
-	bufHdr = LocalBufferAlloc(reln, blockNum, &found);
+		bufHdr = LocalBufferAlloc(reln, blockNum, &found);
     } else {
-	ReadBufferCount++;
+		ReadBufferCount++;
 
-	/* lookup the buffer.  IO_IN_PROGRESS is set if the requested
-	 * block is not currently in memory.
-	 */
-	bufHdr = BufferAlloc(reln, blockNum, &found, bufferLockHeld);
-	if (found) BufferHitCount++;
+		/* lookup the buffer.  IO_IN_PROGRESS is set if the requested
+		 * block is not currently in memory.
+		 */
+		bufHdr = BufferAlloc(reln, blockNum, &found, bufferLockHeld);
+		if (found) BufferHitCount++;
     }
 
     if (!bufHdr) {
-	return(InvalidBuffer);
+		return (InvalidBuffer);
     }
     
     /* if its already in the buffer pool, we're done */
     if (found) {
-	/*
-	 * This happens when a bogus buffer was returned previously and is
-	 * floating around in the buffer pool.  A routine calling this would
-	 * want this extended.
-	 */
-	if (extend) {
-	    /* new buffers are zero-filled */
-	    memset((char *) MAKE_PTR(bufHdr->data), 0, BLCKSZ);
-	    (void) smgrextend(bufHdr->bufsmgr, reln,
-			      (char *) MAKE_PTR(bufHdr->data));
-	}
-	return (BufferDescriptorGetBuffer(bufHdr));
+		/*
+		 * This happens when a bogus buffer was returned previously and is
+		 * floating around in the buffer pool.  A routine calling this would
+		 * want this extended.
+		 */
+		if (extend) {
+			/* new buffers are zero-filled */
+			memset((char *) MAKE_PTR(bufHdr->data), 0, BLCKSZ);
+			(void) smgrextend(bufHdr->bufsmgr, reln,
+							  (char *) MAKE_PTR(bufHdr->data));
+		}
+		return (BufferDescriptorGetBuffer(bufHdr));
 		
     }
     
@@ -250,41 +250,41 @@ ReadBufferWithBufferLock(Relation reln,
      * and the relation file must be open.
      */
     if (extend) {
-	/* new buffers are zero-filled */
-	(void) memset((char *) MAKE_PTR(bufHdr->data), 0, BLCKSZ);
-	status = smgrextend(bufHdr->bufsmgr, reln,
-			    (char *) MAKE_PTR(bufHdr->data));
+		/* new buffers are zero-filled */
+		(void) memset((char *) MAKE_PTR(bufHdr->data), 0, BLCKSZ);
+		status = smgrextend(bufHdr->bufsmgr, reln,
+							(char *) MAKE_PTR(bufHdr->data));
     } else {
-	status = smgrread(bufHdr->bufsmgr, reln, blockNum,
-			  (char *) MAKE_PTR(bufHdr->data));
+		status = smgrread(bufHdr->bufsmgr, reln, blockNum,
+						  (char *) MAKE_PTR(bufHdr->data));
     }
 
     if (isLocalBuf)
-	return (BufferDescriptorGetBuffer(bufHdr));
+		return (BufferDescriptorGetBuffer(bufHdr));
 
     /* lock buffer manager again to update IO IN PROGRESS */
     SpinAcquire(BufMgrLock);
     
     if (status == SM_FAIL) {
-	/* IO Failed.  cleanup the data structures and go home */
-	
-	if (! BufTableDelete(bufHdr)) {
-	    SpinRelease(BufMgrLock);
-	    elog(FATAL,"BufRead: buffer table broken after IO error\n");
-	}
-	/* remember that BufferAlloc() pinned the buffer */
-	UnpinBuffer(bufHdr);
-	
-	/* 
-	 * Have to reset the flag so that anyone waiting for
-	 * the buffer can tell that the contents are invalid.
-	 */
-	bufHdr->flags |= BM_IO_ERROR;
-	bufHdr->flags &= ~BM_IO_IN_PROGRESS;
+		/* IO Failed.  cleanup the data structures and go home */
+		
+		if (! BufTableDelete(bufHdr)) {
+			SpinRelease(BufMgrLock);
+			elog(FATAL,"BufRead: buffer table broken after IO error\n");
+		}
+		/* remember that BufferAlloc() pinned the buffer */
+		UnpinBuffer(bufHdr);
+		
+		/* 
+		 * Have to reset the flag so that anyone waiting for
+		 * the buffer can tell that the contents are invalid.
+		 */
+		bufHdr->flags |= BM_IO_ERROR;
+		bufHdr->flags &= ~BM_IO_IN_PROGRESS;
     } else {
-	/* IO Succeeded.  clear the flags, finish buffer update */
-	
-	bufHdr->flags &= ~(BM_IO_ERROR | BM_IO_IN_PROGRESS);
+		/* IO Succeeded.  clear the flags, finish buffer update */
+		
+		bufHdr->flags &= ~(BM_IO_ERROR | BM_IO_IN_PROGRESS);
     }
     
     /* If anyone was waiting for IO to complete, wake them up now */
@@ -292,15 +292,15 @@ ReadBufferWithBufferLock(Relation reln,
     S_UNLOCK(&(bufHdr->io_in_progress_lock));
 #else
     if (bufHdr->refcount > 1)
-	SignalIO(bufHdr);
+		SignalIO(bufHdr);
 #endif
     
     SpinRelease(BufMgrLock);
     
     if (status == SM_FAIL)
-	return(InvalidBuffer);
+		return (InvalidBuffer);
     
-    return(BufferDescriptorGetBuffer(bufHdr));
+    return (BufferDescriptorGetBuffer(bufHdr));
 }
 
 /*
@@ -774,35 +774,35 @@ WriteNoReleaseBuffer(Buffer buffer)
  *
  */
 Buffer
-ReleaseAndReadBuffer(Buffer buffer,
-		     Relation relation,
-		     BlockNumber blockNum)
+ReleaseAndReadBuffer(Buffer			buffer,
+					 Relation		relation,
+					 BlockNumber	blockNum)
 {
     BufferDesc	*bufHdr;
-    Buffer retbuf;
+    Buffer		retbuf;
 
     if (BufferIsLocal(buffer)) {
-	Assert(LocalRefCount[-buffer - 1] > 0);
-	LocalRefCount[-buffer - 1]--;
+		Assert(LocalRefCount[-buffer - 1] > 0);
+		LocalRefCount[-buffer - 1]--;
     } else {
-	if (BufferIsValid(buffer)) {
-	    bufHdr = &BufferDescriptors[buffer-1];
-	    Assert(PrivateRefCount[buffer - 1] > 0);
-	    PrivateRefCount[buffer - 1]--;
-	    if (PrivateRefCount[buffer - 1] == 0 &&
-		LastRefCount[buffer - 1] == 0) {
-		/* only release buffer if it is not pinned in previous ExecMain
-		   level */
-		SpinAcquire(BufMgrLock);
-		bufHdr->refcount--;
-		if (bufHdr->refcount == 0) {
-		    AddBufferToFreelist(bufHdr);
-		    bufHdr->flags |= BM_FREE;
+		if (BufferIsValid(buffer)) {
+			bufHdr = &BufferDescriptors[buffer-1];
+			Assert(PrivateRefCount[buffer - 1] > 0);
+			PrivateRefCount[buffer - 1]--;
+			if (PrivateRefCount[buffer - 1] == 0 &&
+				LastRefCount[buffer - 1] == 0) {
+				/* only release buffer if it is not pinned in previous ExecMain
+				   level */
+				SpinAcquire(BufMgrLock);
+				bufHdr->refcount--;
+				if (bufHdr->refcount == 0) {
+					AddBufferToFreelist(bufHdr);
+					bufHdr->flags |= BM_FREE;
+				}
+				retbuf = ReadBufferWithBufferLock(relation, blockNum, true);
+				return retbuf;
+			}
 		}
-		retbuf = ReadBufferWithBufferLock(relation, blockNum, true);
-		return retbuf;
-	    }
-	}
     }
 
     return (ReadBuffer(relation, blockNum));
@@ -1202,7 +1202,7 @@ RelationGetNumberOfBlocks(Relation relation)
 {
     return
 	((relation->rd_islocal) ? relation->rd_nblocks :
-	    smgrnblocks(relation->rd_rel->relsmgr, relation));
+							  smgrnblocks(relation->rd_rel->relsmgr, relation));
 }
 
 /*
@@ -1218,9 +1218,9 @@ BufferGetBlock(Buffer buffer)
     Assert(BufferIsValid(buffer));
 
     if (BufferIsLocal(buffer))
-	return((Block)MAKE_PTR(LocalBufferDescriptors[-buffer-1].data));
+		return((Block)MAKE_PTR(LocalBufferDescriptors[-buffer-1].data));
     else
-	return((Block)MAKE_PTR(BufferDescriptors[buffer-1].data));
+		return((Block)MAKE_PTR(BufferDescriptors[buffer-1].data));
 }
 
 /* ---------------------------------------------------------------------

@@ -45,7 +45,7 @@ s...)
  */
 #define _ALIGNSIZE(TYPE)	offsetof(struct { char __c; TYPE __t;}, __t)
 #define _ALIGN(TYPE, LEN) \
-	(((long)(LEN) + (_ALIGNSIZE(TYPE) - 1)) & ~(_ALIGNSIZE(TYPE) - 1))
+		(((long)(LEN) + (_ALIGNSIZE(TYPE) - 1)) & ~(_ALIGNSIZE(TYPE) - 1))
 #define SHORTALIGN(LEN)		_ALIGN(short, (LEN))
 #define INTALIGN(LEN)		_ALIGN(int, (LEN))
 #define LONGALIGN(LEN)		_ALIGN(long, (LEN))
@@ -104,7 +104,7 @@ typedef struct OrderedElemData OrderedElemData;
 typedef OrderedElemData* OrderedElem;
 
 typedef struct OrderedSetData OrderedSetData;
-typedef OrderedSetData* OrderedSet;
+typedef OrderedSetData      * OrderedSet;
 
 struct OrderedElemData {
     OrderedElem	next;	/* Next elem or &this->set->dummy	*/
@@ -116,8 +116,8 @@ struct OrderedSetData {
     OrderedElem	head;	/* First elem or &this->dummy		*/
     OrderedElem	dummy;	/* (hack) Terminator == NULL		*/
     OrderedElem	tail;	/* Last elem or &this->head		*/
-    Offset	offset;	/* Offset from struct base to elem	*/
-    /* this could be signed short int! */
+    Offset		offset;	/* Offset from struct base to elem	*/
+						/* this could be signed short int! */
 };
 
 extern void OrderedSetInit(OrderedSet set, Offset offset);

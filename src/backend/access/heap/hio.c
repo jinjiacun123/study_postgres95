@@ -126,13 +126,13 @@ RelationPutHeapTuple(Relation relation,
 void
 RelationPutHeapTupleAtEnd(Relation relation, HeapTuple tuple)
 {
-    Buffer		buffer;
-    Page		pageHeader;
+    Buffer			buffer;
+    Page			pageHeader;
     BlockNumber		lastblock;
     OffsetNumber	offnum;
     unsigned int	len;
-    ItemId		itemId;
-    Item		item;
+    ItemId			itemId;
+    Item			item;
     
     Assert(RelationIsValid(relation));
     Assert(HeapTupleIsValid(tuple));
@@ -158,10 +158,10 @@ RelationPutHeapTupleAtEnd(Relation relation, HeapTuple tuple)
 		}
 	}
     else
-	buffer = ReadBuffer(relation, lastblock - 1);
+		buffer = ReadBuffer(relation, lastblock - 1);
     
-    pageHeader = (Page)BufferGetPage(buffer);
-    len = (unsigned)DOUBLEALIGN(tuple->t_len);	/* be conservative */
+    pageHeader	= (Page)BufferGetPage(buffer);
+    len			= (unsigned)DOUBLEALIGN(tuple->t_len);	/* be conservative */
     
     /*
      * Note that this is true if the above returned a bogus page, which
@@ -170,21 +170,21 @@ RelationPutHeapTupleAtEnd(Relation relation, HeapTuple tuple)
     
     if (len > PageGetFreeSpace(pageHeader))
 	{
-	    buffer = ReleaseAndReadBuffer(buffer, relation, P_NEW);
-	    pageHeader = (Page)BufferGetPage(buffer);
+	    buffer		= ReleaseAndReadBuffer(buffer, relation, P_NEW);
+	    pageHeader	= (Page)BufferGetPage(buffer);
 	    PageInit(pageHeader, BufferGetPageSize(buffer), 0);
 	    
 	    if (len > PageGetFreeSpace(pageHeader))
-		elog(WARN, "Tuple is too big: size %d", len);
+			elog(WARN, "Tuple is too big: size %d", len);
 	}
     
     offnum = PageAddItem((Page)pageHeader, (Item)tuple,
-			 tuple->t_len, InvalidOffsetNumber, LP_USED);
+						 tuple->t_len, InvalidOffsetNumber, LP_USED);
     
-    itemId = PageGetItemId((Page)pageHeader, offnum);
-    item = PageGetItem((Page)pageHeader, itemId);
+    itemId		= PageGetItemId((Page)pageHeader, offnum);
+    item		= PageGetItem((Page)pageHeader, itemId);
     
-    lastblock = BufferGetBlockNumber(buffer);
+    lastblock	= BufferGetBlockNumber(buffer);
     
     ItemPointerSet(&((HeapTuple)item)->t_ctid, lastblock, offnum);
     

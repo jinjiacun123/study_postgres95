@@ -52,7 +52,7 @@ int		Free_List_Descriptor;
 int		Lookup_List_Descriptor;
 int		Num_Descriptors;
 
-BufferDesc 	*BufferDescriptors;
+BufferDesc		*BufferDescriptors;
 BufferBlock 	BufferBlocks;
 #ifndef HAS_TEST_AND_SET
 long	*NWaitIOBackendP;

@@ -16,29 +16,29 @@
 #include "utils/rel.h"
 #include "storage/spin.h"	/* for SPINLOCK */
 
-#define SM_FAIL		0
-#define	SM_SUCCESS	1
+#define SM_FAIL			0
+#define	SM_SUCCESS		1
 
 #define	DEFAULT_SMGR	0
 
-extern int smgrinit(void);
+extern int  smgrinit(void);
 extern void smgrshutdown(int dummy);
-extern int smgrcreate(int16 which, Relation reln);
-extern int smgrunlink(int16 which, Relation reln);
-extern int smgrextend(int16 which, Relation reln, char *buffer);
-extern int smgropen(int16 which, Relation reln);
-extern int smgrclose(int16 which, Relation reln);
-extern int smgrread(int16 which, Relation reln, BlockNumber blocknum,
-		    char *buffer);
-extern int smgrwrite(int16 which, Relation reln, BlockNumber blocknum,
-		     char *buffer);
-extern int smgrflush(int16 which, Relation reln, BlockNumber blocknum,
-		     char *buffer);
-extern int smgrblindwrt(int16 which, char *dbname, char *relname, Oid dbid,
-			Oid relid, BlockNumber blkno, char *buffer);
-extern int smgrnblocks(int16 which, Relation reln);
-extern int smgrcommit(void);
-extern int smgrabort(void);
+extern int  smgrcreate(int16 which, Relation reln);
+extern int  smgrunlink(int16 which, Relation reln);
+extern int  smgrextend(int16 which, Relation reln, char *buffer);
+extern int  smgropen(int16 which, Relation reln);
+extern int  smgrclose(int16 which, Relation reln);
+extern int  smgrread(int16 which, Relation reln, BlockNumber blocknum,
+		             char *buffer);
+extern int  smgrwrite(int16 which, Relation reln, BlockNumber blocknum,
+		              char *buffer);
+extern int  smgrflush(int16 which, Relation reln, BlockNumber blocknum,
+		              char *buffer);
+extern int  smgrblindwrt(int16 which, char *dbname, char *relname, Oid dbid,
+			             Oid relid, BlockNumber blkno, char *buffer);
+extern int  smgrnblocks(int16 which, Relation reln);
+extern int  smgrcommit(void);
+extern int  smgrabort(void);
 extern bool smgriswo(int16 smgrno);
 
 
@@ -56,7 +56,7 @@ extern int mdread(Relation reln, BlockNumber blocknum, char *buffer);
 extern int mdwrite(Relation reln, BlockNumber blocknum, char *buffer);
 extern int mdflush(Relation reln, BlockNumber blocknum, char *buffer);
 extern int mdblindwrt(char *dbstr, char *relstr, Oid dbid, Oid relid,
-		      BlockNumber blkno, char *buffer);
+				      BlockNumber blkno, char *buffer);
 extern int mdnblocks(Relation reln);
 extern int mdcommit(void);
 extern int mdabort(void);
@@ -75,7 +75,7 @@ extern int mmread(Relation reln, BlockNumber blocknum, char *buffer);
 extern int mmwrite(Relation reln, BlockNumber blocknum, char *buffer);
 extern int mmflush(Relation reln, BlockNumber blocknum, char *buffer);
 extern int mmblindwrt(char *dbstr, char *relstr, Oid dbid, Oid relid,
-		      BlockNumber blkno, char *buffer);
+					  BlockNumber blkno, char *buffer);
 extern int mmnblocks(Relation reln);
 extern int mmcommit(void);
 extern int mmabort(void);

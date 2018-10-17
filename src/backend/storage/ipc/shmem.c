@@ -68,25 +68,25 @@
 
 /* shared memory global variables */
 
-unsigned long  ShmemBase = 0;	/* start and end address of
-				 * shared memory
-				 */
+unsigned long  ShmemBase = 0;						/* start and end address of
+													* shared memory
+													*/
 static unsigned long  ShmemEnd = 0;
-static unsigned long  ShmemSize = 0;	/* current size (and default) */
+static unsigned long  ShmemSize = 0;				/* current size (and default) */
 
-SPINLOCK      ShmemLock;	/* lock for shared memory allocation */
+SPINLOCK      ShmemLock;							/* lock for shared memory allocation */
 
-SPINLOCK      BindingLock;	/* lock for binding table access */
+SPINLOCK      BindingLock;							/* lock for binding table access */
 
-static unsigned long *ShmemFreeStart = NULL;	/* pointer to the OFFSET of
-						 * first free shared memory
-						 */
+static unsigned long *ShmemFreeStart = NULL;		/* pointer to the OFFSET of
+													* first free shared memory
+													*/
 static unsigned long *ShmemBindingTabOffset = NULL; /* start of the binding
-						     * table (for bootstrap)
-						     */
-static int  ShmemBootstrap = FALSE;	/* flag becomes true when shared mem
-					 * is created by POSTMASTER
-					 */
+													 * table (for bootstrap)
+													 */
+static int  ShmemBootstrap = FALSE;					/* flag becomes true when shared mem
+													 * is created by POSTMASTER
+													 */
 
 static HTAB *BindingTable = NULL;
 

@@ -392,12 +392,12 @@ void
 IpcSemaphoreUnlock(IpcSemaphoreId semId, int sem, int lock)
 {
     extern int		errno;
-    int			errStatus;
+    int				errStatus;
     struct sembuf	sops;
     
-    sops.sem_op = -lock;
-    sops.sem_flg = 0;
-    sops.sem_num = sem;
+    sops.sem_op		= -lock;
+    sops.sem_flg	= 0;
+    sops.sem_num	= sem;
     
     
     /* ----------------
@@ -412,14 +412,14 @@ IpcSemaphoreUnlock(IpcSemaphoreId semId, int sem, int lock)
      * ----------------
      */
     do {
-	errStatus = semop(semId, &sops, 1);
+		errStatus = semop(semId, &sops, 1);
     } while (errStatus == -1 && errno == EINTR);
     
     IpcSemaphoreUnlock_return = errStatus;
     
     if (errStatus == -1) {
-	perror("semop");
-	exitpg(255);
+		perror("semop");
+		exitpg(255);
     }
 }
 
@@ -644,22 +644,22 @@ ExclusiveLock(int lockid)
  ex_try_again:
     S_LOCK(&(slckP->locklock));
     switch (slckP->flag) {
-    case NOLOCK:
-	slckP->flag = EXCLUSIVELOCK;
-	S_LOCK(&(slckP->exlock));
-	S_LOCK(&(slckP->shlock));
-	S_UNLOCK(&(slckP->locklock));
+		case NOLOCK:
+			slckP->flag = EXCLUSIVELOCK;
+			S_LOCK(&(slckP->exlock));
+			S_LOCK(&(slckP->shlock));
+			S_UNLOCK(&(slckP->locklock));
 #ifdef LOCKDEBUG
-	printf("OUT: ");
-	PRINT_LOCK(slckP);
+			printf("OUT: ");
+			PRINT_LOCK(slckP);
 #endif
-	return;
-    case SHAREDLOCK:
-    case EXCLUSIVELOCK:
-	S_UNLOCK(&(slckP->locklock));
-	S_LOCK(&(slckP->exlock));
-	S_UNLOCK(&(slckP->exlock));
-	goto ex_try_again;
+			return;
+		case SHAREDLOCK:
+		case EXCLUSIVELOCK:
+			S_UNLOCK(&(slckP->locklock));
+			S_LOCK(&(slckP->exlock));
+			S_UNLOCK(&(slckP->exlock));
+			goto ex_try_again;
     }
 }
 
@@ -681,14 +681,14 @@ ExclusiveUnlock(int lockid)
      */
     slckP->flag = NOLOCK;
     if (slckP->nshlocks > 0) {
-	while (slckP->nshlocks > 0) {
-	    S_UNLOCK(&(slckP->shlock));
-	    S_LOCK(&(slckP->comlock));
-	}
-	S_UNLOCK(&(slckP->shlock));
+		while (slckP->nshlocks > 0) {
+			S_UNLOCK(&(slckP->shlock));
+			S_LOCK(&(slckP->comlock));
+		}
+		S_UNLOCK(&(slckP->shlock));
     }
     else {
-	S_UNLOCK(&(slckP->shlock));
+		S_UNLOCK(&(slckP->shlock));
     }
     S_UNLOCK(&(slckP->exlock));
     S_UNLOCK(&(slckP->locklock));

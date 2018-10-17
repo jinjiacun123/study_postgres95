@@ -83,11 +83,11 @@ PageInit(Page page, Size pageSize, Size specialSize)
     Assert(pageSize >
 	   specialSize + sizeof(PageHeaderData) - sizeof(ItemIdData));
     
-    specialSize = DOUBLEALIGN(specialSize);
+    specialSize		= DOUBLEALIGN(specialSize);
 
-    p->pd_lower = sizeof(PageHeaderData) - sizeof(ItemIdData);
-    p->pd_upper = pageSize - specialSize;
-    p->pd_special = pageSize - specialSize;
+    p->pd_lower		= sizeof(PageHeaderData) - sizeof(ItemIdData);
+    p->pd_upper		= pageSize - specialSize;
+    p->pd_special	= pageSize - specialSize;
     PageSetPageSize(page, pageSize);
 }
 
@@ -134,7 +134,7 @@ PageGetItem(Page page, ItemId itemId)
  *
  *   Notes on interface:
  *  	If offsetNumber is valid, shuffle ItemId's down to make room
- * 	to use it, if PageManagerShuffle is true.  If PageManagerShuffle is
+ *		to use it, if PageManagerShuffle is true.  If PageManagerShuffle is
  *  	false, then overwrite the specified ItemId.  (PageManagerShuffle is
  *  	true by default, and is modified by calling PageManagerModeSet.)
  *  	If offsetNumber is not valid, then assign one by finding the first 
@@ -146,18 +146,18 @@ PageGetItem(Page page, ItemId itemId)
  * ----------------
  */
 OffsetNumber
-PageAddItem(Page page,
-	    Item item,
-	    Size size,
-	    OffsetNumber offsetNumber,
-	    ItemIdFlags flags)
+PageAddItem(Page			page,
+			Item			item,
+			Size			size,
+			OffsetNumber	offsetNumber,
+			ItemIdFlags		flags)
 {
     register 		i;
-    Size		alignedSize;
-    Offset		lower;
-    Offset		upper;
-    ItemId		itemId;
-    ItemId		fromitemId, toitemId;
+    Size			alignedSize;
+    Offset			lower;
+    Offset			upper;
+    ItemId			itemId;
+    ItemId			fromitemId, toitemId;
     OffsetNumber 	limit;
     
     bool shuffled = false;
@@ -169,49 +169,49 @@ PageAddItem(Page page,
     
     /* was offsetNumber passed in? */
     if (OffsetNumberIsValid(offsetNumber)) {
-	if (PageManagerShuffle == true) {
-	    /* shuffle ItemId's (Do the PageManager Shuffle...) */
-	    for (i = (limit - 1); i >= offsetNumber; i--) {
-		fromitemId = &((PageHeader)page)->pd_linp[i - 1];
-		toitemId = &((PageHeader)page)->pd_linp[i];
-		*toitemId = *fromitemId;
-	    }
-	    shuffled = true;	/* need to increase "lower" */
-	} else { /* overwrite mode */
-	    itemId = &((PageHeader)page)->pd_linp[offsetNumber - 1];
-	    if (((*itemId).lp_flags & LP_USED)  || 
-		((*itemId).lp_len != 0)) {
-		elog(WARN, "PageAddItem: tried overwrite of used ItemId");
-		return (InvalidOffsetNumber);
-	    }
-	}
+		if (PageManagerShuffle == true) {
+			/* shuffle ItemId's (Do the PageManager Shuffle...) */
+			for (i = (limit - 1); i >= offsetNumber; i--) {
+				fromitemId = &((PageHeader)page)->pd_linp[i - 1];
+				toitemId = &((PageHeader)page)->pd_linp[i];
+				*toitemId = *fromitemId;
+			}
+			shuffled = true;	/* need to increase "lower" */
+		} else { /* overwrite mode */
+			itemId = &((PageHeader)page)->pd_linp[offsetNumber - 1];
+			if (((*itemId).lp_flags & LP_USED)  || 
+			((*itemId).lp_len != 0)) {
+				elog(WARN, "PageAddItem: tried overwrite of used ItemId");
+				return (InvalidOffsetNumber);
+			}
+		}
     } else {	/* offsetNumber was not passed in, so find one */
-	/* look for "recyclable" (unused & deallocated) ItemId */
-	for (offsetNumber = 1; offsetNumber < limit; offsetNumber++) {
-	    itemId = &((PageHeader)page)->pd_linp[offsetNumber - 1];
-	    if ((((*itemId).lp_flags & LP_USED) == 0) && 
-		((*itemId).lp_len == 0)) 
-		break;
-	}
+				/* look for "recyclable" (unused & deallocated) ItemId */
+		for (offsetNumber = 1; offsetNumber < limit; offsetNumber++) {
+			itemId = &((PageHeader)page)->pd_linp[offsetNumber - 1];
+			if ((((*itemId).lp_flags & LP_USED) == 0) && 
+				((*itemId).lp_len == 0)) 
+				break;
+		}
     }
     if (offsetNumber > limit)
-	lower = (Offset) (((char *) (&((PageHeader)page)->pd_linp[offsetNumber])) - ((char *) page));
+		lower = (Offset) (((char *) (&((PageHeader)page)->pd_linp[offsetNumber])) - ((char *) page));
     else if (offsetNumber == limit || shuffled == true)
-	lower = ((PageHeader)page)->pd_lower + sizeof (ItemIdData);
+		lower = ((PageHeader)page)->pd_lower + sizeof (ItemIdData);
     else
-	lower = ((PageHeader)page)->pd_lower;
+		lower = ((PageHeader)page)->pd_lower;
     
     alignedSize = DOUBLEALIGN(size);
     
     upper = ((PageHeader)page)->pd_upper - alignedSize;
     
     if (lower > upper) {
-	return (InvalidOffsetNumber);
+		return (InvalidOffsetNumber);
     }
     
     itemId = &((PageHeader)page)->pd_linp[offsetNumber - 1];
-    (*itemId).lp_off = upper;
-    (*itemId).lp_len = size;
+    (*itemId).lp_off   = upper;
+    (*itemId).lp_len   = size;
     (*itemId).lp_flags = flags;
     memmove((char *)page + upper, item, size);
     ((PageHeader)page)->pd_lower = lower;
@@ -393,7 +393,7 @@ PageGetFreeSpace(Page page)
     space = ((PageHeader)page)->pd_upper - ((PageHeader)page)->pd_lower;
     
     if (space < sizeof (ItemIdData)) {
-	return (0);
+		return (0);
     }
     space -= sizeof (ItemIdData);		/* XXX not always true */
     

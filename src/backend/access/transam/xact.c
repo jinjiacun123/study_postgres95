@@ -318,7 +318,7 @@ GetCurrentTransactionId()
      * ----------------
      */
     if (s->state == TRANS_DISABLED)
-	return (TransactionId) DisabledTransactionId;
+		return (TransactionId) DisabledTransactionId;
     
     /* ----------------
      *	otherwise return the current transaction id.
@@ -343,7 +343,7 @@ GetCurrentCommandId()
      * ----------------
      */
     if (s->state == TRANS_DISABLED)
-	return (CommandId) DisabledCommandId;
+		return (CommandId) DisabledCommandId;
     
     return s->commandId;
 }

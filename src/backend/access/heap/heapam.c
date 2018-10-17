@@ -1088,7 +1088,7 @@ heap_insert(Relation relation, HeapTuple tup)
      * ----------------
      */
     if (!relation->rd_islocal)
-	RelationSetLockForWrite(relation);
+		RelationSetLockForWrite(relation);
 
     /* ----------------
      *  If the object id of this tuple has already been assigned, trust
@@ -1101,8 +1101,8 @@ heap_insert(Relation relation, HeapTuple tup)
      * ----------------
      */
     if (!OidIsValid(tup->t_oid)) {
-	tup->t_oid = newoid();
-	LastOidProcessed = tup->t_oid;
+		tup->t_oid		 = newoid();
+		LastOidProcessed = tup->t_oid;
     }
     else
     	CheckMaxObjectId(tup->t_oid);
@@ -1116,15 +1116,15 @@ heap_insert(Relation relation, HeapTuple tup)
     doinsert(relation, tup);
     
     if ( IsSystemRelationName(RelationGetRelationName(relation)->data)) {
-	RelationUnsetLockForWrite(relation);
-    
-	/* ----------------
-	 *	invalidate caches (only works for system relations)
-	 * ----------------
-	 */
-	SetRefreshWhenInvalidate(ImmediateInvalidation);
-	RelationInvalidateHeapTuple(relation, tup);
-	SetRefreshWhenInvalidate((bool)!ImmediateInvalidation);
+		RelationUnsetLockForWrite(relation);
+		
+		/* ----------------
+		 *	invalidate caches (only works for system relations)
+		 * ----------------
+		 */
+		SetRefreshWhenInvalidate(ImmediateInvalidation);
+		RelationInvalidateHeapTuple(relation, tup);
+		SetRefreshWhenInvalidate((bool)!ImmediateInvalidation);
     }
     
     return(tup->t_oid);

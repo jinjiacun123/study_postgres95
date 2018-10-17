@@ -116,7 +116,7 @@ typedef struct PageHeaderData {
     LocationIndex	pd_lower;	/* offset to start of free space */
     LocationIndex	pd_upper;	/* offset to end of free space */
     LocationIndex	pd_special;	/* offset to start of special space */
-    OpaqueData       	pd_opaque;	/* AM-generic information */
+    OpaqueData      pd_opaque;	/* AM-generic information */
     ItemIdData		pd_linp[1];	/* line pointers */
 } PageHeaderData;
 
@@ -203,7 +203,7 @@ typedef enum {
  *	Sets the page size of a page.
  */
 #define PageSetPageSize(page, size) \
-    ((PageHeader) (page))->pd_opaque.od_pagesize = (size)
+						((PageHeader) (page))->pd_opaque.od_pagesize = (size)
 
 /* ----------------
  *	page special data macros

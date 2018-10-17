@@ -87,7 +87,7 @@ StoreInvalidTransactionId(TransactionId *destination)
  */
 void
 TransactionIdStore(TransactionId transactionId,
-		   TransactionId *destination)
+				   TransactionId *destination)
 {
     *destination = transactionId;
 }

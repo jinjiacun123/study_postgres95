@@ -358,9 +358,9 @@ CreateGlobalMemory(char  *name)	/* XXX MemoryContextName */
     
     savecxt = MemoryContextSwitchTo(TopMemoryContext);
     
-    context = (GlobalMemory)newNode(sizeof(struct GlobalMemory), T_GlobalMemory);
+    context			= (GlobalMemory)newNode(sizeof(struct GlobalMemory), T_GlobalMemory);
     context->method = &GlobalContextMethodsData;
-    context->name = name;		/* assumes name is static */
+    context->name	= name;		/* assumes name is static */
     AllocSetInit(&context->setData, DynamicAllocMode, (Size)0);
     
     /* link the context */

@@ -197,7 +197,7 @@ heap_creatr(char		*name,
     char                tempname[40];
     int					isTemp	= 0;
     int					natts	= tupDesc->natts;
-/*    AttributeTupleForm *att = tupDesc->attrs; */
+	/*    AttributeTupleForm *att = tupDesc->attrs; */
     
     extern GlobalMemory	CacheCxt;
     MemoryContext		oldcxt;

@@ -126,8 +126,8 @@ smgrcreate(int16 which, Relation reln)
     int fd;
 
     if ((fd = (*(smgrsw[which].smgr_create))(reln)) < 0)
-	elog(WARN, "cannot open %.*s",
-	     NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
+		elog(WARN, "cannot open %.*s",
+			 NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
 
     return (fd);
 }
@@ -163,8 +163,8 @@ smgrextend(int16 which, Relation reln, char *buffer)
     status = (*(smgrsw[which].smgr_extend))(reln, buffer);
 
     if (status == SM_FAIL)
-	elog(WARN, "%.*s: cannot extend",
-	     NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
+		elog(WARN, "%.*s: cannot extend",
+			 NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
 
     return (status);
 }
@@ -220,8 +220,8 @@ smgrread(int16 which, Relation reln, BlockNumber blocknum, char *buffer)
     status = (*(smgrsw[which].smgr_read))(reln, blocknum, buffer);
 
     if (status == SM_FAIL)
-	elog(WARN, "cannot read block %d of %.*s",
-	     blocknum, NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
+		elog(WARN, "cannot read block %d of %.*s",
+			 blocknum, NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
 
     return (status);
 }

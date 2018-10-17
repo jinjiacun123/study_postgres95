@@ -66,16 +66,16 @@ typedef HeapTupleData	*HeapTuple;
 
 
 #define SelfItemPointerAttributeNumber		(-1)
-#define ObjectIdAttributeNumber			(-2)
+#define ObjectIdAttributeNumber				(-2)
 #define MinTransactionIdAttributeNumber		(-3)
-#define MinCommandIdAttributeNumber		(-4)
+#define MinCommandIdAttributeNumber			(-4)
 #define MaxTransactionIdAttributeNumber		(-5)
-#define MaxCommandIdAttributeNumber		(-6)
+#define MaxCommandIdAttributeNumber			(-6)
 #define ChainItemPointerAttributeNumber		(-7)
 #define AnchorItemPointerAttributeNumber	(-8)
 #define MinAbsoluteTimeAttributeNumber		(-9)
 #define MaxAbsoluteTimeAttributeNumber		(-10)
-#define VersionTypeAttributeNumber		(-11)
+#define VersionTypeAttributeNumber			(-11)
 #define FirstLowInvalidHeapAttributeNumber	(-12)
 
 
