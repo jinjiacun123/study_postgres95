@@ -401,8 +401,6 @@ SearchSysCacheTuple(int		cacheId,	/* cache selection code */
     }
     
     tp = SearchSysCache(SysCache[cacheId], key1, key2, key3, key4);
-    if(tp == NULL)
-		printf("my test!\n");    
 	if (!HeapTupleIsValid(tp)) {
 #ifdef CACHEDEBUG
 		elog(DEBUG,

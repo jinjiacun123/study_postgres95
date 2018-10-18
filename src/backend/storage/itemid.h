@@ -21,10 +21,10 @@ typedef bits16	ItemIdFlags;
 
 
 typedef struct ItemIdData {		/* line pointers */
-	unsigned	lp_off:13,	/* offset to find tup */
-					/* can be reduced by 2 if necc. */
-			lp_flags:6,	/* flags on tuple */
-			lp_len:13;	/* length of tuple */
+	unsigned	lp_off:13,		/* offset to find tup */
+								/* can be reduced by 2 if necc. */
+				lp_flags:6,		/* flags on tuple */
+				lp_len:13;		/* length of tuple */
 } ItemIdData;
 
 typedef struct ItemIdData	*ItemId;
@@ -41,19 +41,19 @@ typedef struct ItemIdData	*ItemId;
  *	ItemIdGetLength
  */
 #define ItemIdGetLength(itemId) \
-   ((itemId)->lp_len)
+		((itemId)->lp_len)
 
 /* 
  *	ItemIdGetOffset
  */
 #define ItemIdGetOffset(itemId) \
-   ((itemId)->lp_off)
+		((itemId)->lp_off)
 
 /* 
  *	ItemIdGetFlags
  */
 #define ItemIdGetFlags(itemId) \
-   ((itemId)->lp_flags)
+		((itemId)->lp_flags)
 
 /*
  * ItemIdIsValid --
@@ -69,7 +69,7 @@ typedef struct ItemIdData	*ItemId;
  *	Assumes disk item identifier is valid.
  */
 #define ItemIdIsUsed(itemId) \
-    (AssertMacro(ItemIdIsValid(itemId)) ? \
-     (bool) (((itemId)->lp_flags & LP_USED) != 0) : false)
+		(AssertMacro(ItemIdIsValid(itemId)) ? \
+		(bool) (((itemId)->lp_flags & LP_USED) != 0) : false)
 
 #endif	/* ITEMID_H */

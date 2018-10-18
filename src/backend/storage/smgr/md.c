@@ -46,9 +46,9 @@ typedef struct _MdfdVec {
     struct _MdfdVec	*mdfd_chain;	/* for large relations */
 } MdfdVec;
 
-static int				Nfds = 100;
-static MdfdVec			*Md_fdvec = (MdfdVec *) NULL;
-static int				CurFd = 0;
+static int				Nfds		= 100;
+static MdfdVec			*Md_fdvec	= (MdfdVec *) NULL;
+static int				CurFd		= 0;
 static MemoryContext	MdCxt;
 
 #define MDFD_DIRTY	(uint16) 0x01
@@ -56,10 +56,10 @@ static MemoryContext	MdCxt;
 #define	RELSEG_SIZE	262144		/* (2 ** 31) / 8192 -- 2GB file */
 
 /* routines declared here */
-static MdfdVec	*_mdfd_openseg(Relation reln, int segno, int oflags);
-static MdfdVec	*_mdfd_getseg(Relation reln, int blkno, int oflag);
-static int _fdvec_ext(void);
-static BlockNumber _mdnblocks(File file, Size blcksz);
+static MdfdVec		*_mdfd_openseg(Relation reln, int segno, int oflags);
+static MdfdVec		*_mdfd_getseg(Relation reln, int blkno, int oflag);
+static int			_fdvec_ext(void);
+static BlockNumber	_mdnblocks(File file, Size blcksz);
 
 /*
  *  mdinit() -- Initialize private state for magnetic disk storage manager.
@@ -378,7 +378,9 @@ mdwrite(Relation reln, BlockNumber blocknum, char *buffer)
  *	system buffer cache has been flushed.
  */
 int
-mdflush(Relation reln, BlockNumber blocknum, char *buffer)
+mdflush(Relation	reln, 
+		BlockNumber blocknum, 
+		char		*buffer)
 {
     int		status;
     long	seekpos;

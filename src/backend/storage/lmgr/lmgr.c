@@ -301,8 +301,8 @@ RelationDiscardLockInfo(Relation relation)
  */
 #ifdef	LOCKDEBUGALL
 #define LOCKDEBUGALL_30 \
-elog(DEBUG, "RelationSetLockForDescriptorOpen(%s[%d,%d]) called", \
-     RelationGetRelationName(relation), lRelId.dbId, lRelId.relId)
+		elog(DEBUG, "RelationSetLockForDescriptorOpen(%s[%d,%d]) called", \
+			 RelationGetRelationName(relation), lRelId.dbId, lRelId.relId)
 #else
 #define LOCKDEBUGALL_30
 #endif	/* LOCKDEBUGALL*/

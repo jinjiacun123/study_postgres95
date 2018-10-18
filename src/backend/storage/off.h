@@ -40,8 +40,8 @@ typedef uint16			OffsetNumber;
  *	True iff the offset number is valid.
  */
 #define OffsetNumberIsValid(offsetNumber) \
-    ((bool) ((offsetNumber != InvalidOffsetNumber) && \
-	     (offsetNumber <= MaxOffsetNumber)))
+							((bool) ((offsetNumber != InvalidOffsetNumber) && \
+							 (offsetNumber <= MaxOffsetNumber)))
 
 /*
  * OffsetNumberNext --
@@ -53,8 +53,8 @@ typedef uint16			OffsetNumber;
  *	real C array index).
  */
 #define OffsetNumberNext(offsetNumber) \
-    ((OffsetNumber) (1 + (offsetNumber)))
+						((OffsetNumber) (1 + (offsetNumber)))
 #define OffsetNumberPrev(offsetNumber) \
-    ((OffsetNumber) (-1 + (offsetNumber)))
+						((OffsetNumber) (-1 + (offsetNumber)))
 
 #endif	/* OFF_H */

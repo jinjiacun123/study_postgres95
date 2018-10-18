@@ -231,20 +231,20 @@ usage()
 int
 BootstrapMain(int argc, char *argv[])
 {
-    int	  i;
-    int	  portFd = -1;
-    char  *dbName;
-    int   flag;
-    int   override = 1;  /* use BootstrapProcessing or InitProcessing mode */
+    int				i;
+    int				portFd = -1;
+    char			*dbName;
+    int				flag;
+    int				override = 1;  /* use BootstrapProcessing or InitProcessing mode */
     
-    extern int	  optind;
-    extern char	  *optarg;
+    extern int		optind;
+    extern char		*optarg;
 
     /* ----------------
      *	initialize signal handlers
      * ----------------
      */
-    signal(SIGINT, (sig_func) die);
+    signal(SIGINT,  (sig_func) die);
 #ifndef WIN32
     signal(SIGHUP,  (sig_func) die); 
     signal(SIGTERM, (sig_func) die);
@@ -429,7 +429,7 @@ boot_openrel(char *relname)
     
     if (!Quiet)
     	printf("Amopen: relation %s. attrsize %d\n", relname,
-	       ATTRIBUTE_TUPLE_SIZE);
+			   ATTRIBUTE_TUPLE_SIZE);
     
     reldesc = heap_openr(relname);
     Assert(reldesc);
@@ -563,7 +563,7 @@ InsertOneTuple(Oid objectid)
     }
     
     tupDesc = CreateTupleDesc(numattr,attrtypes); 
-    tuple	= heap_formtuple(tupDesc,(Datum*)values,Blanks); 
+    tuple	= heap_formtuple(tupDesc, (Datum*)values, Blanks); 
     pfree(tupDesc); /* just free's tupDesc, not the attrtypes */
 
     if(objectid !=(Oid)0) {

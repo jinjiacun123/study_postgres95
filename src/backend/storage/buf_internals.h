@@ -59,25 +59,25 @@ struct buftag{
 };
 
 #define CLEAR_BUFFERTAG(a)\
-  (a)->relId.dbId	= InvalidOid; \
-  (a)->relId.relId	= InvalidOid; \
-  (a)->blockNum		= InvalidBlockNumber
+		  (a)->relId.dbId	= InvalidOid; \
+		  (a)->relId.relId	= InvalidOid; \
+		  (a)->blockNum		= InvalidBlockNumber
 
 #define INIT_BUFFERTAG(a,xx_reln,xx_blockNum) \
-{ \
-  (a)->blockNum = xx_blockNum;\
-  (a)->relId	= RelationGetLRelId(xx_reln); \
-}
+		{ \
+		  (a)->blockNum = xx_blockNum;\
+		  (a)->relId	= RelationGetLRelId(xx_reln); \
+		}
 
 #define COPY_BUFFERTAG(a,b)\
-{ \
-  (a)->blockNum = (b)->blockNum;\
-  LRelIdAssign(*(a),*(b));\
-}
+		{ \
+		  (a)->blockNum = (b)->blockNum;\
+		  LRelIdAssign(*(a),*(b));\
+		}
 
 #define EQUAL_BUFFERTAG(a,b) \
-  (((a)->blockNum == (b)->blockNum) &&\
-   (OID_Equal((a)->relId.relId,(b)->relId.relId)))
+		  (((a)->blockNum == (b)->blockNum) &&\
+		   (OID_Equal((a)->relId.relId,(b)->relId.relId)))
 
 
 #define BAD_BUFFER_ID(bid) ((bid<1) || (bid>(NBuffers)))
@@ -94,7 +94,7 @@ struct buftag{
 
 /*
  *  struct sbufdesc -- shared buffer cache metadata for a single
- *		       shared buffer descriptor.
+ *						shared buffer descriptor.
  *
  *	We keep the name of the database and relation in which this
  *	buffer appears in order to avoid a catalog lookup on cache
@@ -106,23 +106,23 @@ struct buftag{
  */
 
 struct sbufdesc {
-    Buffer		freeNext;	/* link for freelist chain */
-    Buffer		freePrev;
+    Buffer			freeNext;	/* link for freelist chain */
+    Buffer			freePrev;
     SHMEM_OFFSET	data;		/* pointer to data in buf pool */
 
     /* tag and id must be together for table lookup to work */
     BufferTag		tag;		/* file/block identifier */
-    int			buf_id;		/* maps global desc to local desc */
+    int				buf_id;		/* maps global desc to local desc */
 
     BufFlags		flags;    	/* described below */
-    int16		bufsmgr;	/* storage manager id for buffer */
+    int16			bufsmgr;	/* storage manager id for buffer */
     unsigned		refcount;	/* # of times buffer is pinned */
 
-    char sb_dbname[NAMEDATALEN+1];	/* name of db in which buf belongs */
-    char sb_relname[NAMEDATALEN+1];	/* name of reln */
+    char			sb_dbname[NAMEDATALEN+1];	/* name of db in which buf belongs */
+    char			sb_relname[NAMEDATALEN+1];	/* name of reln */
 #ifdef HAS_TEST_AND_SET
     /* can afford a dedicated lock if test-and-set locks are available */
-    slock_t	io_in_progress_lock;
+    slock_t			io_in_progress_lock;
 #endif /* HAS_TEST_AND_SET */
 
     /*
@@ -139,25 +139,25 @@ struct sbufdesc {
 /* NO spinlock */
 
 #if defined(PORTNAME_ultrix4)
-    char		sb_pad[60];	/* no slock_t */
+    char			sb_pad[60];	/* no slock_t */
 #endif /* mips */
 
 /* HAS_TEST_AND_SET -- platform dependent size */
 
 #if defined(PORTNAME_aix)
-    char		sb_pad[44];	/* typedef unsigned int slock_t; */
+    char			sb_pad[44];	/* typedef unsigned int slock_t; */
 #endif /* aix */
 #if defined(PORTNAME_alpha)
-    char		sb_pad[40];	/* typedef msemaphore slock_t; */
+    char			sb_pad[40];	/* typedef msemaphore slock_t; */
 #endif /* alpha */
 #if defined(PORTNAME_hpux)
-    char		sb_pad[44];	/* typedef struct { int sem[4]; } slock_t; */
+    char			sb_pad[44];	/* typedef struct { int sem[4]; } slock_t; */
 #endif /* hpux */
 #if defined(PORTNAME_irix5)
-    char		sb_pad[44];	/* typedef abilock_t slock_t; */
+    char			sb_pad[44];	/* typedef abilock_t slock_t; */
 #endif /* irix5 */
 #if defined(PORTNAME_next)
-    char		sb_pad[56];	/* typedef struct mutex slock_t; */
+    char			sb_pad[56];	/* typedef struct mutex slock_t; */
 #endif /* next */
 
 /* HAS_TEST_AND_SET -- default 1 byte spinlock */
@@ -169,7 +169,7 @@ struct sbufdesc {
     defined(PORTNAME_linux) || \
     defined(PORTNAME_sparc) || \
     defined(PORTNAME_sparc_solaris)
-    char		sb_pad[56];	/* has slock_t */
+    char			sb_pad[56];	/* has slock_t */
 #endif /* 1 byte slock_t */
 };
 
@@ -188,10 +188,10 @@ typedef struct _bmtrace {
     int		bmt_blkno;
     int		bmt_op;
 
-#define BMT_NOTUSED	0
+#define BMT_NOTUSED		0
 #define BMT_ALLOCFND	1
 #define BMT_ALLOCNOTFND	2
-#define	BMT_DEALLOC	3
+#define	BMT_DEALLOC		3
 
 } bmtrace;
 
@@ -224,19 +224,19 @@ extern void DBG_LookupListCheck(int nlookup);
 /* bufmgr.c */
 extern BufferDesc 	*BufferDescriptors;
 extern BufferBlock 	BufferBlocks;
-extern long		*PrivateRefCount;
-extern long		*LastRefCount;
+extern long			*PrivateRefCount;
+extern long			*LastRefCount;
 extern SPINLOCK		BufMgrLock;
 
 /* localbuf.c */
-extern long *LocalRefCount;
-extern BufferDesc *LocalBufferDescriptors;
-extern int NLocBuffer;
+extern long			*LocalRefCount;
+extern BufferDesc	*LocalBufferDescriptors;
+extern int			NLocBuffer;
 
 extern BufferDesc *LocalBufferAlloc(Relation reln, BlockNumber blockNum,
-				    bool *foundPtr);
-extern int WriteLocalBuffer(Buffer buffer, bool release);
-extern int FlushLocalBuffer(Buffer buffer);
+									bool *foundPtr);
+extern int	WriteLocalBuffer(Buffer buffer, bool release);
+extern int	FlushLocalBuffer(Buffer buffer);
 extern void InitLocalBuffer();
 extern void LocalBufferSync();
 extern void ResetLocalBufferPool();

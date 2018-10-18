@@ -755,7 +755,7 @@ SearchSysCache(struct catcache *cache,
      * ----------------
      */
     if (cache->relationId == InvalidOid)
-			CatalogCacheInitializeCache(cache, NULL);
+		CatalogCacheInitializeCache(cache, NULL);
     
     /* ----------------
      *	initialize the search key information
@@ -882,12 +882,12 @@ SearchSysCache(struct catcache *cache,
 							 cache->cc_nkeys, 
 							 cache->cc_skey);
 	    ntp = heap_getnext(sd, 0, &buffer);
-	   /* 
+	    
 	    if (HeapTupleIsValid(ntp)) {
 			CACHE1_elog(DEBUG, "SearchSysCache: found tuple");
 			ntp = heap_copytuple(ntp);
 	    }
-	    */
+	    
 		if(ntp == NULL)
 			heap_endscan(sd);
 	}

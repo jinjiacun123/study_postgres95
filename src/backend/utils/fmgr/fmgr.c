@@ -30,82 +30,82 @@
 
 
 char *
-fmgr_c(func_ptr user_fn,
-       Oid func_id,
-       int n_arguments,
-       FmgrValues *values,
-       bool *isNull)		
+fmgr_c(func_ptr		user_fn,
+       Oid			func_id,
+       int			n_arguments,
+       FmgrValues	*values,
+       bool			*isNull)		
 {
     char	*returnValue = (char *) NULL;
 
     
     if (user_fn == (func_ptr) NULL) {
-	/*
-	 * a NULL func_ptr denotes untrusted function (in postgres 4.2).
-	 * Untrusted functions have very limited use and is clumsy. We
-	 * just get rid of it.
-	 */
-	elog(WARN, "internal error: untrusted function not supported.");
+		/*
+		 * a NULL func_ptr denotes untrusted function (in postgres 4.2).
+		 * Untrusted functions have very limited use and is clumsy. We
+		 * just get rid of it.
+		 */
+		elog(WARN, "internal error: untrusted function not supported.");
     }
     
     switch (n_arguments) {
-    case 0:
-	returnValue = (*user_fn)();
-	break;
-    case 1:
-	/* NullValue() uses isNull to check if args[0] is NULL */
-	returnValue = (*user_fn)(values->data[0], isNull);
-	break;
-    case 2:
-	returnValue = (*user_fn)(values->data[0], values->data[1]);
-	break;
-    case 3:
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2]);
-	break;
-    case 4:
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2], values->data[3]);
-	break;
-    case 5:
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2], values->data[3],
-				 values->data[4]);
-	break;
-    case 6:
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2], values->data[3],
-				 values->data[4], values->data[5]);
-	break;
-    case 7:
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2], values->data[3],
-				 values->data[4], values->data[5],
-				 values->data[6]);
-	break;
-    case 8:
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2], values->data[3],
-				 values->data[4], values->data[5],
-				 values->data[6], values->data[7]);
-	break;
-    case 9:
-	/*
-	 * XXX Note that functions with >8 arguments can only be
-	 * called from inside the system, not from the user level,
-	 * since the catalogs only store 8 argument types for user
-	 * type-checking!
-	 */
-	returnValue = (*user_fn)(values->data[0], values->data[1],
-				 values->data[2], values->data[3],
-				 values->data[4], values->data[5],
-				 values->data[6], values->data[7],
-				 values->data[8]);
-	break;
-    default:
-	elog(WARN, "fmgr_c: function %d: too many arguments (%d > %d)",
-	     func_id, n_arguments, MAXFMGRARGS);
-	break;
+		case 0:
+			returnValue = (*user_fn)();
+			break;
+		case 1:
+			/* NullValue() uses isNull to check if args[0] is NULL */
+			returnValue = (*user_fn)(values->data[0], isNull);
+			break;
+		case 2:
+			returnValue = (*user_fn)(values->data[0], values->data[1]);
+		break;
+		case 3:
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2]);
+		break;
+		case 4:
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2], values->data[3]);
+		break;
+		case 5:
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2], values->data[3],
+									 values->data[4]);
+		break;
+		case 6:
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2], values->data[3],
+									 values->data[4], values->data[5]);
+		break;
+		case 7:
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2], values->data[3],
+									 values->data[4], values->data[5],
+									 values->data[6]);
+		break;
+		case 8:
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2], values->data[3],
+									 values->data[4], values->data[5],
+									 values->data[6], values->data[7]);
+		break;
+		case 9:
+			/*
+			 * XXX Note that functions with >8 arguments can only be
+			 * called from inside the system, not from the user level,
+			 * since the catalogs only store 8 argument types for user
+			 * type-checking!
+			 */
+			returnValue = (*user_fn)(values->data[0], values->data[1],
+									 values->data[2], values->data[3],
+									 values->data[4], values->data[5],
+									 values->data[6], values->data[7],
+									 values->data[8]);
+		break;
+		default:
+			elog(WARN, "fmgr_c: function %d: too many arguments (%d > %d)",
+				 func_id, n_arguments, MAXFMGRARGS);
+		break;
     }
     return(returnValue);
 }
@@ -198,8 +198,11 @@ fmgr(Oid procedureId, ... )
     va_end(pvar);
     
     /* XXX see WAY_COOL_ORTHOGONAL_FUNCTIONS */
-    return(fmgr_c(user_fn, procedureId, pronargs, &values,
-		  &isNull));
+    return(fmgr_c(user_fn, 
+				  procedureId, 
+				  pronargs, 
+				  &values,
+				  &isNull));
 }
 
 /*

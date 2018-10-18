@@ -95,9 +95,9 @@
  */
 #ifdef HP_JUKEBOX
 #define RESERVE_FOR_JB	25
-#define	MAXFILES	((NOFILE - RESERVE_FOR_LD) - RESERVE_FOR_JB)
+#define	MAXFILES		((NOFILE - RESERVE_FOR_LD) - RESERVE_FOR_JB)
 #else /* HP_JUKEBOX */
-#define	MAXFILES	(NOFILE - RESERVE_FOR_LD)
+#define	MAXFILES		(NOFILE - RESERVE_FOR_LD)
 #endif /* HP_JUKEBOX */
 
 /* Debugging.... */
@@ -121,20 +121,20 @@ typedef struct vfd {
 
 #define FD_DIRTY	(1 << 0)
 
-    File	nextFree;
-    File	lruMoreRecently;
-    File	lruLessRecently;
-    long	seekPos;
-    char	*fileName;
-    int		fileFlags;
-    int		fileMode;
+    File			nextFree;
+    File			lruMoreRecently;
+    File			lruLessRecently;
+    long			seekPos;
+    char			*fileName;
+    int				fileFlags;
+    int				fileMode;
 } Vfd;
 
 /*
  * Virtual File Descriptor array pointer and size.  This grows as
  * needed.
  */
-static	Vfd	*VfdCache;
+static	Vfd		*VfdCache;
 static	Size	SizeVfdCache = 0;
 
 /*
@@ -210,14 +210,14 @@ pg_fsync(fd)
 static void
 _dump_lru()
 {
-    int mru = VfdCache[0].lruLessRecently;
-    Vfd *vfdP = &VfdCache[mru];
+    int mru		= VfdCache[0].lruLessRecently;
+    Vfd *vfdP	= &VfdCache[mru];
     
     printf("MOST %d ", mru);
     while (mru != 0)
 	{
-	    mru = vfdP->lruLessRecently;
-	    vfdP = &VfdCache[mru];
+	    mru		= vfdP->lruLessRecently;
+	    vfdP	= &VfdCache[mru];
 	    printf("%d ", mru);
 	}
     printf("LEAST\n");
@@ -294,9 +294,9 @@ Insert(File file)
     
     vfdP = &VfdCache[file];
     
-    vfdP->lruMoreRecently = 0;
-    vfdP->lruLessRecently = VfdCache[0].lruLessRecently;
-    VfdCache[0].lruLessRecently = file;
+    vfdP->lruMoreRecently							= 0;
+    vfdP->lruLessRecently							= VfdCache[0].lruLessRecently;
+    VfdCache[0].lruLessRecently						= file;
     VfdCache[vfdP->lruLessRecently].lruMoreRecently = file;
     
     DO_DB(_dump_lru());
@@ -314,35 +314,35 @@ LruInsert (File file)
     vfdP = &VfdCache[file];
     
     if (FileIsNotOpen(file)) {
-	int tmpfd;
+		int tmpfd;
+		
+			/*
+		 * Note, we check to see if there's a free file descriptor
+		 * before attempting to open a file. One general way to do
+		 * this is to try to open the null device which everybody
+		 * should be able to open all the time. If this fails, we
+		 * assume this is because there's no free file descriptors.
+		 */
+		tryAgain:
+		tmpfd = open(Nulldev, O_CREAT|O_RDWR, 0666);
+		if (tmpfd < 0) {
+			FreeFd = 0;
+			errno = 0;
+			AssertLruRoom();
+			goto tryAgain;
+		} else {
+			close(tmpfd);
+		}
+		vfdP->fd = open(vfdP->fileName,vfdP->fileFlags,vfdP->fileMode);
 	
-        /*
-	 * Note, we check to see if there's a free file descriptor
-	 * before attempting to open a file. One general way to do
-	 * this is to try to open the null device which everybody
-	 * should be able to open all the time. If this fails, we
-	 * assume this is because there's no free file descriptors.
-	 */
-    tryAgain:
-	tmpfd = open(Nulldev, O_CREAT|O_RDWR, 0666);
-	if (tmpfd < 0) {
-	    FreeFd = 0;
-	    errno = 0;
-	    AssertLruRoom();
-	    goto tryAgain;
-	} else {
-	    close(tmpfd);
-	}
-	vfdP->fd = open(vfdP->fileName,vfdP->fileFlags,vfdP->fileMode);
-	
-	if (vfdP->fd < 0) {
-	    DO_DB(printf("RE_OPEN FAILED: %d\n",
-			 errno));
-	    return (vfdP->fd);
-	} else {
-	    DO_DB(printf("RE_OPEN SUCCESS\n"));
-	    ++nfile;
-	}
+		if (vfdP->fd < 0) {
+			DO_DB(printf("RE_OPEN FAILED: %d\n",
+				  errno));
+			return (vfdP->fd);
+		} else {
+			DO_DB(printf("RE_OPEN SUCCESS\n"));
+			++nfile;
+		}
 	
 	/* seek to the right position */
 	if (vfdP->seekPos != 0L) {
@@ -375,7 +375,7 @@ AssertLruRoom()
 		 FreeFd));
     
     if (FreeFd <= 0 || nfile >= MAXFILES) {
-	LruDelete(VfdCache[0].lruMoreRecently);
+		LruDelete(VfdCache[0].lruMoreRecently);
     }
 }
 
@@ -389,51 +389,51 @@ AllocateVfd()
     
     if (SizeVfdCache == 0) {
 	
-	/* initialize */
-	VfdCache = (Vfd *)malloc(sizeof(Vfd));
-	
-	VfdCache->nextFree = 0;
-	VfdCache->lruMoreRecently = 0;
-	VfdCache->lruLessRecently = 0;
-	VfdCache->fd = VFD_CLOSED;
-	VfdCache->fdstate = 0x0;
-	
-	SizeVfdCache = 1;
+		/* initialize */
+		VfdCache					= (Vfd *)malloc(sizeof(Vfd));
+		
+		VfdCache->nextFree			= 0;
+		VfdCache->lruMoreRecently	= 0;
+		VfdCache->lruLessRecently	= 0;
+		VfdCache->fd				= VFD_CLOSED;
+		VfdCache->fdstate			= 0x0;
+		
+		SizeVfdCache				= 1;
     }
     
     if (VfdCache[0].nextFree == 0) {
 	
-	/*
-	 * The free list is empty so it is time to increase the
-	 * size of the array
-	 */
+		/*
+		 * The free list is empty so it is time to increase the
+		 * size of the array
+		 */
+		
+		VfdCache =(Vfd *)realloc(VfdCache, sizeof(Vfd)*SizeVfdCache*2);
+		Assert(VfdCache != NULL);
+		
+		/*
+		 * Set up the free list for the new entries
+		 */
+		
+		for (i = SizeVfdCache; i < 2*SizeVfdCache; i++)  {
+			memset((char *) &(VfdCache[i]), 0, sizeof(VfdCache[0]));
+			VfdCache[i].nextFree	= i+1;
+			VfdCache[i].fd			= VFD_CLOSED;
+		}
+		
+		/*
+		 * Element 0 is the first and last element of the free
+		 * list
+		 */
 	
-	VfdCache =(Vfd *)realloc(VfdCache, sizeof(Vfd)*SizeVfdCache*2);
-	Assert(VfdCache != NULL);
-	
-	/*
-	 * Set up the free list for the new entries
-	 */
-	
-	for (i = SizeVfdCache; i < 2*SizeVfdCache; i++)  {
-	    memset((char *) &(VfdCache[i]), 0, sizeof(VfdCache[0]));
-	    VfdCache[i].nextFree = i+1;
-	    VfdCache[i].fd = VFD_CLOSED;
-	}
-	
-	/*
-	 * Element 0 is the first and last element of the free
-	 * list
-	 */
-	
-	VfdCache[0].nextFree = SizeVfdCache;
-	VfdCache[2*SizeVfdCache-1].nextFree = 0;
-	
-	/*
-	 * Record the new size
-	 */
-	
-	SizeVfdCache *= 2;
+		VfdCache[0].nextFree				= SizeVfdCache;
+		VfdCache[2*SizeVfdCache-1].nextFree = 0;
+		
+		/*
+		 * Record the new size
+		 */
+		
+		SizeVfdCache *= 2;
     }
     file = VfdCache[0].nextFree;
     
@@ -487,7 +487,7 @@ FileAccess(File file)
     int	returnValue;
     
     DO_DB(printf("DB: FileAccess %d (%s)\n",
-		 file, VfdCache[file].fileName));
+		  file, VfdCache[file].fileName));
     
     /*
      * Is the file open?  If not, close the least recently used,
@@ -496,22 +496,24 @@ FileAccess(File file)
     
     if (FileIsNotOpen(file)) {
 	
-	AssertLruRoom();
+		AssertLruRoom();
+		
+		returnValue = LruInsert(file);
+		if (returnValue != 0)
+			return returnValue;
 	
-	returnValue = LruInsert(file);
-	if (returnValue != 0)
-	    return returnValue;
+    } 
+	else 
+	{
 	
-    } else {
-	
-	/*
-	 * We now know that the file is open and that it is not the
-	 * last one accessed, so we need to more it to the head of
-	 * the Lru ring.
-	 */
-	
-	Delete(file);
-	Insert(file);
+		/*
+		 * We now know that the file is open and that it is not the
+		 * last one accessed, so we need to more it to the head of
+		 * the Lru ring.
+		 */
+		
+		Delete(file);
+		Insert(file);
     }
     
     return (0);
@@ -717,12 +719,12 @@ FileWrite(File file, char *buffer, int amount)
     int	returnCode;
 
     DO_DB(printf("DB: FileWrite: %d (%s) %d 0x%lx\n",
-		 file, VfdCache[file].fileName, amount, buffer));
+				 file, VfdCache[file].fileName, amount, buffer));
     
     FileAccess(file);
     returnCode = write(VfdCache[file].fd, buffer, amount);
     if (returnCode > 0) {  /* changed by Boris with Mao's advice */
-	VfdCache[file].seekPos += returnCode;
+		VfdCache[file].seekPos += returnCode;
     }
     
     /* record the write */
@@ -745,20 +747,20 @@ FileSeek(File file, long offset, int whence)
 				VfdCache[file].seekPos = offset;
 				return offset;
 			case SEEK_CUR:
-				VfdCache[file].seekPos = VfdCache[file].seekPos +offset;
+				VfdCache[file].seekPos = VfdCache[file].seekPos + offset;
 				return VfdCache[file].seekPos;
 			case SEEK_END:
 				FileAccess(file);
-				returnCode = VfdCache[file].seekPos = 
-				lseek(VfdCache[file].fd, offset, whence);
+				returnCode	= VfdCache[file].seekPos 
+							= lseek(VfdCache[file].fd, offset, whence);
 				return returnCode;
 			default:
 				elog(WARN, "FileSeek: invalid whence: %d", whence);
 				break;
 		}
     } else {
-		returnCode = VfdCache[file].seekPos = 
-					 lseek(VfdCache[file].fd, offset, whence);
+		returnCode = VfdCache[file].seekPos 
+			       = lseek(VfdCache[file].fd, offset, whence);
 		return returnCode;
     }
     /*NOTREACHED*/
@@ -803,10 +805,10 @@ FileSync(File file)
      */
     
     if (VfdCache[file].fd < 0 || !(VfdCache[file].fdstate & FD_DIRTY)) {
-	returnCode = 0;
+		returnCode = 0;
     } else {
-	returnCode = fsync(VfdCache[file].fd);
-	VfdCache[file].fdstate &= ~FD_DIRTY;
+		returnCode = fsync(VfdCache[file].fd);
+		VfdCache[file].fdstate &= ~FD_DIRTY;
     }
     
     return returnCode;

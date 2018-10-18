@@ -932,7 +932,6 @@ heap_getnext(HeapScanDesc scandesc,
 												   sdesc->rs_key);
 		}
 	
-		printf("heap getnext ... begin\n");
 		if (sdesc->rs_ctup == NULL && !BufferIsValid(sdesc->rs_cbuf)) 
 		{
 			if (BufferIsValid(sdesc->rs_nbuf))
@@ -947,7 +946,6 @@ heap_getnext(HeapScanDesc scandesc,
 			return (NULL);
 		}
 	
-		printf("heap getnext ... and\n");
 		if (BufferIsValid(sdesc->rs_nbuf))
 			ReleaseBuffer(sdesc->rs_nbuf);
 		sdesc->rs_ntup = NULL;

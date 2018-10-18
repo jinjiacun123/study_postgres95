@@ -57,52 +57,52 @@ typedef ItemPointerData	*ItemPointer;
  *	Returns the offset number of a disk item pointer.
  */
 #define ItemPointerGetOffsetNumber(pointer) \
-    (AssertMacro(ItemPointerIsValid(pointer)) ? \
-     (pointer)->ip_posid : \
-     InvalidOffsetNumber)
+		(AssertMacro(ItemPointerIsValid(pointer)) ? \
+		 (pointer)->ip_posid : \
+		 InvalidOffsetNumber)
 
 /*
  * ItemPointerSet --
  *	Sets a disk item pointer to the specified block and offset.
  */
 #define ItemPointerSet(pointer, blockNumber, offNum) \
-    Assert(PointerIsValid(pointer)); \
-    BlockIdSet(&((pointer)->ip_blkid), blockNumber); \
-    (pointer)->ip_posid = offNum
+		Assert(PointerIsValid(pointer)); \
+		BlockIdSet(&((pointer)->ip_blkid), blockNumber); \
+		(pointer)->ip_posid = offNum
 
 /*
  * ItemPointerSetBlockNumber --
  *	Sets a disk item pointer to the specified block.
  */
 #define ItemPointerSetBlockNumber(pointer, blockNumber) \
-    Assert(PointerIsValid(pointer)); \
-    BlockIdSet(&((pointer)->ip_blkid), blockNumber)
+		Assert(PointerIsValid(pointer)); \
+		BlockIdSet(&((pointer)->ip_blkid), blockNumber)
 
 /*
  * ItemPointerSetOffsetNumber --
  *	Sets a disk item pointer to the specified offset.
  */
 #define ItemPointerSetOffsetNumber(pointer, offsetNumber) \
-    AssertMacro(PointerIsValid(pointer)); \
-    (pointer)->ip_posid = (offsetNumber)
+		AssertMacro(PointerIsValid(pointer)); \
+		(pointer)->ip_posid = (offsetNumber)
 
 /*
  * ItemPointerCopy --
  *	Copies the contents of one disk item pointer to another.
  */
 #define ItemPointerCopy(fromPointer, toPointer) \
-    Assert(PointerIsValid(toPointer)); \
-    Assert(PointerIsValid(fromPointer)); \
-    *(toPointer) = *(fromPointer)
+		Assert(PointerIsValid(toPointer)); \
+		Assert(PointerIsValid(fromPointer)); \
+		*(toPointer) = *(fromPointer)
 
 /*
  * ItemPointerSetInvalid --
  *	Sets a disk item pointer to be invalid.
  */
 #define ItemPointerSetInvalid(pointer) \
-    Assert(PointerIsValid(pointer)); \
-    BlockIdSet(&((pointer)->ip_blkid), InvalidBlockNumber); \
-    (pointer)->ip_posid = InvalidOffsetNumber
+		Assert(PointerIsValid(pointer)); \
+		BlockIdSet(&((pointer)->ip_blkid), InvalidBlockNumber); \
+		(pointer)->ip_posid = InvalidOffsetNumber
 
 /* ----------------
  *	externs

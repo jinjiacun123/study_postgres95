@@ -252,15 +252,18 @@ smgrwrite(int16 which, Relation reln, BlockNumber blocknum, char *buffer)
  *  smgrflush() -- A synchronous smgrwrite().
  */
 int
-smgrflush(int16 which, Relation reln, BlockNumber blocknum, char *buffer)
+smgrflush(int16			which, 
+		  Relation		reln, 
+		  BlockNumber	blocknum, 
+		  char			*buffer)
 {
     int status;
 
     status = (*(smgrsw[which].smgr_flush))(reln, blocknum, buffer);
 
     if (status == SM_FAIL)
-	elog(WARN, "cannot flush block %d of %.*s to stable store",
-	     blocknum, NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
+		elog(WARN, "cannot flush block %d of %.*s to stable store",
+			 blocknum, NAMEDATALEN, &(reln->rd_rel->relname.data[0]));
 
     return (status);
 }

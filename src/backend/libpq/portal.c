@@ -701,7 +701,7 @@ void
 PQclear(char *pname)
 {    
     if (!valid_pointer("PQclear: invalid portal name pointer", pname))
-	return;
+		return;
     pbuf_close(pname);
 }
 

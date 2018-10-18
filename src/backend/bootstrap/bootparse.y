@@ -201,7 +201,6 @@ DeclareIndexStmt:
 		  DO_START;
 
 		  params = lappend(NIL, (List*)$9);
-		  printf("--->jim,test!\n");
 		  DefineIndex(LexIDStr($5), 
 					  LexIDStr($3), 
 					  LexIDStr($7),

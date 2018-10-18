@@ -170,8 +170,8 @@ WriteLocalBuffer(Buffer buffer, bool release)
 int
 FlushLocalBuffer(Buffer buffer)
 {
-    int bufid;
-    Relation bufrel;
+    int			bufid;
+    Relation	bufrel;
     BufferDesc *bufHdr;
 
     Assert(BufferIsLocal(buffer));
@@ -180,14 +180,16 @@ FlushLocalBuffer(Buffer buffer)
     fprintf(stderr, "LB FLUSH %d\n", buffer);
 #endif    
 
-    bufid = - (buffer + 1);
-    bufHdr = &LocalBufferDescriptors[bufid];
-    bufHdr->flags &= ~BM_DIRTY;
-    bufrel = RelationIdCacheGetRelation(bufHdr->tag.relId.relId);
+    bufid			= - (buffer + 1);
+    bufHdr			= &LocalBufferDescriptors[bufid];
+    bufHdr->flags	&= ~BM_DIRTY;
+    bufrel			= RelationIdCacheGetRelation(bufHdr->tag.relId.relId);
 
     Assert(bufrel != NULL);
-    smgrflush(bufrel->rd_rel->relsmgr, bufrel, bufHdr->tag.blockNum,
-	      (char *) MAKE_PTR(bufHdr->data));
+    smgrflush(bufrel->rd_rel->relsmgr, 
+			  bufrel, 
+			  bufHdr->tag.blockNum,
+			  (char *) MAKE_PTR(bufHdr->data));
 
     Assert(LocalRefCount[bufid] > 0);
     LocalRefCount[bufid]--;

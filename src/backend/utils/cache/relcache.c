@@ -195,8 +195,8 @@ typedef struct relnamecacheent {
     }
 #define RelationIdCacheLookup(ID, RELATION)	\
     {   RelIdCacheEnt *hentry; bool found; \
-	hentry = (RelIdCacheEnt*)hash_search(RelationIdCache, \
-					     (char *)&(ID),HASH_FIND, &found); \
+		hentry = (RelIdCacheEnt*)hash_search(RelationIdCache, \
+										     (char *)&(ID),HASH_FIND, &found); \
 	if (hentry == NULL) { \
 	    elog(FATAL, "error in CACHE"); \
 	  } \
@@ -208,34 +208,34 @@ typedef struct relnamecacheent {
 	  } \
     }
 #define RelationCacheDelete(RELATION)	\
-    {   RelNameCacheEnt *namehentry; RelIdCacheEnt *idhentry; \
-	char *relname; Oid reloid; bool found; \
-	relname = (RELATION->rd_rel->relname).data; \
-	namehentry = (RelNameCacheEnt*)hash_search(RelationNameCache, \
-					           relname, \
-						   HASH_REMOVE, \
-						   &found); \
-	if (namehentry == NULL) { \
-	    elog(FATAL, "can't delete from relation descriptor cache"); \
-	  } \
-	if (!found) { \
-	    elog(NOTICE, "trying to delete a reldesc that does not exist."); \
-	  } \
-	reloid = RELATION->rd_id; \
-	idhentry = (RelIdCacheEnt*)hash_search(RelationIdCache, \
-					       (char *)&reloid, \
-					       HASH_REMOVE, &found); \
-	if (idhentry == NULL) { \
-	    elog(FATAL, "can't delete from relation descriptor cache"); \
-	  } \
-	if (!found) { \
-	    elog(NOTICE, "trying to delete a reldesc that does not exist."); \
-	  } \
-    }
+		{   RelNameCacheEnt *namehentry; RelIdCacheEnt *idhentry; \
+			char *relname; Oid reloid; bool found; \
+			relname = (RELATION->rd_rel->relname).data; \
+			namehentry = (RelNameCacheEnt*)hash_search(RelationNameCache, \
+													   relname, \
+														HASH_REMOVE, \
+														&found); \
+			if (namehentry == NULL) { \
+				elog(FATAL, "can't delete from relation descriptor cache"); \
+			} \
+			if (!found) { \
+				elog(NOTICE, "trying to delete a reldesc that does not exist."); \
+			} \
+			reloid = RELATION->rd_id; \
+			idhentry = (RelIdCacheEnt*)hash_search(RelationIdCache, \
+												   (char *)&reloid, \
+													HASH_REMOVE, &found); \
+			if (idhentry == NULL) { \
+				elog(FATAL, "can't delete from relation descriptor cache"); \
+			} \
+			if (!found) { \
+				elog(NOTICE, "trying to delete a reldesc that does not exist."); \
+			} \
+		}
 
 /* non-export function prototypes */
 static void formrdesc(char *relationName, u_int natts,
-		      FormData_pg_attribute att[]);
+					  FormData_pg_attribute att[]);
 
 static void RelationFlushIndexes(Relation *r, Oid accessMethodId);
 
@@ -245,11 +245,11 @@ static HeapTuple scan_pg_rel_seq(RelationBuildDescInfo buildinfo);
 static HeapTuple scan_pg_rel_ind(RelationBuildDescInfo buildinfo);
 static Relation AllocateRelationDesc(u_int natts, Form_pg_class relp);
 static void RelationBuildTupleDesc(RelationBuildDescInfo buildinfo,    
-		Relation relation, AttributeTupleForm attp, u_int natts);
+								Relation relation, AttributeTupleForm attp, u_int natts);
 static void build_tupdesc_seq(RelationBuildDescInfo buildinfo,
-		Relation relation, AttributeTupleForm attp, u_int natts);
+									Relation relation, AttributeTupleForm attp, u_int natts);
 static void build_tupdesc_ind(RelationBuildDescInfo buildinfo,
-		Relation relation, AttributeTupleForm attp, u_int natts);
+									Relation relation, AttributeTupleForm attp, u_int natts);
 static Relation RelationBuildDesc(RelationBuildDescInfo buildinfo);
 static void IndexedAccessMethodInitialize(Relation relation);
 
@@ -272,12 +272,12 @@ BuildDescInfoError(RelationBuildDescInfo buildinfo)
     
     memset(errBuf, 0, (int) sizeof(errBuf));
     switch(buildinfo.infotype) {
-    case INFO_RELID:
-	sprintf(errBuf, "(relation id %d)", buildinfo.i.info_id);
-	break;
-    case INFO_RELNAME:
-	sprintf(errBuf, "(relation name %.*s)", NAMEDATALEN, buildinfo.i.info_name);
-	break;
+		case INFO_RELID:
+			sprintf(errBuf, "(relation id %d)", buildinfo.i.info_id);
+			break;
+		case INFO_RELNAME:
+			sprintf(errBuf, "(relation name %.*s)", NAMEDATALEN, buildinfo.i.info_name);
+			break;
     }
     
     return errBuf;
@@ -390,8 +390,8 @@ scan_pg_rel_seq(RelationBuildDescInfo buildinfo)
 static HeapTuple
 scan_pg_rel_ind(RelationBuildDescInfo buildinfo)
 {
-    Relation pg_class_desc;
-    HeapTuple return_tuple;
+    Relation	pg_class_desc;
+    HeapTuple	return_tuple;
     
     pg_class_desc = heap_openr(RelationRelationName);
     if (!IsInitProcessingMode())
@@ -473,9 +473,9 @@ AllocateRelationDesc(u_int natts, Form_pg_class relp)
  */
 static void
 RelationBuildTupleDesc(RelationBuildDescInfo buildinfo,    
-		       Relation relation,
-		       AttributeTupleForm attp,
-		       u_int natts)
+					   Relation				 relation,
+					   AttributeTupleForm	 attp,
+					   u_int				 natts)
 {
     /*
      *  If this is bootstrap time (initdb), then we can't use the system
@@ -491,15 +491,15 @@ RelationBuildTupleDesc(RelationBuildDescInfo buildinfo,
 
 static void
 build_tupdesc_seq(RelationBuildDescInfo buildinfo,
-		  Relation relation,
-		  AttributeTupleForm attp,
-		  u_int natts)
+				  Relation				relation,
+				  AttributeTupleForm	attp,
+				  u_int					natts)
 {
     HeapTuple    pg_attribute_tuple;
     Relation	 pg_attribute_desc;
     HeapScanDesc pg_attribute_scan;
     ScanKeyData	 key;
-    int		 need;
+    int			 need;
     
     /* ----------------
      *	form a scan key
@@ -516,14 +516,14 @@ build_tupdesc_seq(RelationBuildDescInfo buildinfo,
      */
     pg_attribute_desc = heap_openr(AttributeRelationName);
     pg_attribute_scan =
-	heap_beginscan(pg_attribute_desc, 0, NowTimeQual, 1, &key);
+						heap_beginscan(pg_attribute_desc, 0, NowTimeQual, 1, &key);
     
     /* ----------------
      *	add attribute data to relation->rd_att
      * ----------------
      */
-    need = natts;
-    pg_attribute_tuple = heap_getnext(pg_attribute_scan, 0, (Buffer *) NULL);
+    need				= natts;
+    pg_attribute_tuple	= heap_getnext(pg_attribute_scan, 0, (Buffer *) NULL);
     while (HeapTupleIsValid(pg_attribute_tuple) && need > 0) {
 		attp = (AttributeTupleForm) GETSTRUCT(pg_attribute_tuple);
 		
@@ -532,8 +532,8 @@ build_tupdesc_seq(RelationBuildDescInfo buildinfo,
 			(AttributeTupleForm)palloc(ATTRIBUTE_TUPLE_SIZE);
 			
 			memmove((char *) (relation->rd_att->attrs[attp->attnum - 1]),
-								(char *) attp,
-								ATTRIBUTE_TUPLE_SIZE);
+						  	 (char *) attp,
+							 ATTRIBUTE_TUPLE_SIZE);
 			need--;
 		}
 		pg_attribute_tuple = heap_getnext(pg_attribute_scan,
@@ -554,31 +554,31 @@ build_tupdesc_seq(RelationBuildDescInfo buildinfo,
 
 static void
 build_tupdesc_ind(RelationBuildDescInfo buildinfo,
-		  Relation	relation,
-		  AttributeTupleForm attp,
-		  u_int natts)
+				  Relation				relation,
+				  AttributeTupleForm	attp,
+				  u_int					natts)
 {
-    Relation attrel;
-    HeapTuple atttup;
-    int i;
+    Relation	attrel;
+    HeapTuple	atttup;
+    int			i;
      
     attrel = heap_openr(AttributeRelationName);
     
     for (i = 1; i <= relation->rd_rel->relnatts; i++) {
 	
-	atttup = (HeapTuple) AttributeNumIndexScan(attrel, relation->rd_id, i);
-	
-	if (!HeapTupleIsValid(atttup))
-	    elog(WARN, "cannot find attribute %d of relation %.16s", i,
-		 &(relation->rd_rel->relname.data[0]));
-	attp = (AttributeTupleForm) GETSTRUCT(atttup);
-	
-	relation->rd_att->attrs[i - 1] = 
-	    (AttributeTupleForm) palloc(ATTRIBUTE_TUPLE_SIZE);
-	
-	memmove((char *) (relation->rd_att->attrs[i - 1]),
-		(char *) attp,
-		ATTRIBUTE_TUPLE_SIZE);
+		atttup = (HeapTuple) AttributeNumIndexScan(attrel, relation->rd_id, i);
+		
+		if (!HeapTupleIsValid(atttup))
+			elog(WARN, "cannot find attribute %d of relation %.16s", i,
+				 &(relation->rd_rel->relname.data[0]));
+		attp = (AttributeTupleForm) GETSTRUCT(atttup);
+		
+		relation->rd_att->attrs[i - 1] = 
+			(AttributeTupleForm) palloc(ATTRIBUTE_TUPLE_SIZE);
+		
+		memmove((char *) (relation->rd_att->attrs[i - 1]),
+			   (char *) attp,
+			   ATTRIBUTE_TUPLE_SIZE);
     }
     
     heap_close(attrel);
@@ -594,30 +594,31 @@ build_tupdesc_ind(RelationBuildDescInfo buildinfo,
 static void
 RelationBuildRuleLock(Relation relation)
 {
-    HeapTuple    pg_rewrite_tuple;
-    Relation	 pg_rewrite_desc;
-    TupleDesc pg_rewrite_tupdesc;
-    HeapScanDesc pg_rewrite_scan;
-    ScanKeyData	 key;
-    RuleLock 	*rulelock;
-    int 	 numlocks;
-    RewriteRule **rules;
-    int 	 maxlocks;
+    HeapTuple		pg_rewrite_tuple;
+    Relation		pg_rewrite_desc;
+    TupleDesc		pg_rewrite_tupdesc;
+    HeapScanDesc	pg_rewrite_scan;
+    ScanKeyData		key;
+    RuleLock		*rulelock;
+    int				numlocks;
+    RewriteRule		**rules;
+    int				maxlocks;
     
     /* ----------------
      *	form an array to hold the rewrite rules (the array is extended if
      *  necessary)
      * ----------------
      */
-    maxlocks = 4;
-    rules = (RewriteRule **)palloc(sizeof(RewriteRule*)*maxlocks);
-    numlocks = 0;
+    maxlocks	= 4;
+    rules		= (RewriteRule **)palloc(sizeof(RewriteRule*)*maxlocks);
+    numlocks	= 0;
 
     /* ----------------
      *	form a scan key
      * ----------------
      */
-    ScanKeyEntryInitialize(&key, 0, 
+    ScanKeyEntryInitialize(&key, 
+						   0, 
                            Anum_pg_rewrite_ev_class,
                            ObjectIdEqualRegProcedure,
                            ObjectIdGetDatum(relation->rd_id));
@@ -626,64 +627,72 @@ RelationBuildRuleLock(Relation relation)
      *	open pg_attribute and begin a scan
      * ----------------
      */
-    pg_rewrite_desc = heap_openr(RewriteRelationName);
-    pg_rewrite_scan =
-	heap_beginscan(pg_rewrite_desc, 0, NowTimeQual, 1, &key);
-    pg_rewrite_tupdesc =
-	RelationGetTupleDescriptor(pg_rewrite_desc);
+    pg_rewrite_desc		= heap_openr(RewriteRelationName);
+    pg_rewrite_scan		= heap_beginscan(pg_rewrite_desc, 
+										 0, 
+										 NowTimeQual, 
+										 1, 
+										 &key);
+    pg_rewrite_tupdesc	= RelationGetTupleDescriptor(pg_rewrite_desc);
     
     /* ----------------
      *	add attribute data to relation->rd_att
      * ----------------
      */
-    while ((pg_rewrite_tuple = heap_getnext(pg_rewrite_scan, 0,
-					    (Buffer *) NULL)) != NULL) {
-	bool isnull;
-	char *ruleaction = NULL;
-	char *rule_evqual_string;
-	RewriteRule *rule;
+    while ((pg_rewrite_tuple = heap_getnext(pg_rewrite_scan, 
+											0,
+											(Buffer *) NULL)) != NULL) {
+		bool		isnull;
+		char		*ruleaction = NULL;
+		char		*rule_evqual_string;
+		RewriteRule *rule;
 
-	rule = (RewriteRule *)palloc(sizeof(RewriteRule));
+		rule = (RewriteRule *)palloc(sizeof(RewriteRule));
 
-	rule->ruleId = pg_rewrite_tuple->t_oid;
+		rule->ruleId = pg_rewrite_tuple->t_oid;
 
-	/* XXX too lazy to fix the type cast problem
-	 * 	(see rewriteDefine.c:121)
-	 */
-	rule->event =
-	    (CmdType)((char)heap_getattr(pg_rewrite_tuple, InvalidBuffer,
-				  Anum_pg_rewrite_ev_type, pg_rewrite_tupdesc,
-				  &isnull) - 48);
-	rule->attrno = 
-	    (AttrNumber)heap_getattr(pg_rewrite_tuple, InvalidBuffer,
-				  Anum_pg_rewrite_ev_attr, pg_rewrite_tupdesc,
-				  &isnull);
-	rule->isInstead = 
-	    (bool)heap_getattr(pg_rewrite_tuple, InvalidBuffer,
-			       Anum_pg_rewrite_is_instead, pg_rewrite_tupdesc,
-			       &isnull);
+		/* XXX too lazy to fix the type cast problem
+		 * 	(see rewriteDefine.c:121)
+		 */
+		rule->event = (CmdType)((char)heap_getattr(pg_rewrite_tuple, 
+												   InvalidBuffer,
+												   Anum_pg_rewrite_ev_type, 
+												   pg_rewrite_tupdesc,
+												   &isnull) - 48);
+		rule->attrno = (AttrNumber)heap_getattr(pg_rewrite_tuple, 
+												InvalidBuffer,
+												Anum_pg_rewrite_ev_attr, 
+												pg_rewrite_tupdesc,
+												&isnull);
+		rule->isInstead = (bool)heap_getattr(pg_rewrite_tuple, 
+											 InvalidBuffer,
+											 Anum_pg_rewrite_is_instead, 
+											 pg_rewrite_tupdesc,
+											 &isnull);
 
-	ruleaction =
-	    heap_getattr(pg_rewrite_tuple, InvalidBuffer,
-			 Anum_pg_rewrite_action, pg_rewrite_tupdesc,
-			 &isnull);
-	rule_evqual_string =
-	    heap_getattr(pg_rewrite_tuple, InvalidBuffer,
-			 Anum_pg_rewrite_ev_qual, pg_rewrite_tupdesc,
-			 &isnull);
+		ruleaction = heap_getattr(pg_rewrite_tuple, 
+								  InvalidBuffer,
+								  Anum_pg_rewrite_action, 
+								  pg_rewrite_tupdesc,
+								  &isnull);
+		rule_evqual_string = heap_getattr(pg_rewrite_tuple, 
+										  InvalidBuffer,
+										  Anum_pg_rewrite_ev_qual, 
+										  pg_rewrite_tupdesc,
+										  &isnull);
 
-	ruleaction = textout((struct varlena *)ruleaction);
-	rule_evqual_string = textout((struct varlena *)rule_evqual_string);
+		ruleaction			= textout((struct varlena *)ruleaction);
+		rule_evqual_string	= textout((struct varlena *)rule_evqual_string);
 
-	rule->actions = (List*)stringToNode(ruleaction);
-	rule->qual = (Node*)stringToNode(rule_evqual_string);
+		rule->actions	= (List*)stringToNode(ruleaction);
+		rule->qual		= (Node*)stringToNode(rule_evqual_string);
 
-	rules[numlocks++] = rule;
-	if (numlocks==maxlocks) {
-	    maxlocks *= 2;
-	    rules =
-		(RewriteRule **)repalloc(rules, sizeof(RewriteRule*)*maxlocks);
-	}
+		rules[numlocks++] = rule;
+		if (numlocks==maxlocks) {
+			maxlocks *= 2;
+			rules =
+			(RewriteRule **)repalloc(rules, sizeof(RewriteRule*)*maxlocks);
+		}
     }
 
     /* ----------------
@@ -698,8 +707,8 @@ RelationBuildRuleLock(Relation relation)
      * ----------------
      */
     rulelock = (RuleLock *)palloc(sizeof(RuleLock));
-    rulelock->numLocks = numlocks;
-    rulelock->rules = rules;
+    rulelock->numLocks	= numlocks;
+    rulelock->rules		= rules;
 
     relation->rd_rules = rulelock;
     return;

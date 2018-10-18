@@ -42,24 +42,24 @@
 /* ----------------
  *	PQfn -  Send a function call to the POSTGRES backend.
  *
- *	fnid		: function id
+ *	fnid			: function id
  * 	result_buf      : pointer to result buffer (&int if integer)
- * 	result_len	: length of return value.
+ * 	result_len		: length of return value.
  * 	result_is_int	: If the result is an integer, this must be non-zero
- * 	args		: pointer to a NULL terminated arg array.
- *			  (length, if integer, and result-pointer)
- * 	nargs		: # of arguments in args array.
+ * 	args			: pointer to a NULL terminated arg array.
+ *						(length, if integer, and result-pointer)
+ * 	nargs			: # of arguments in args array.
  *
  *	This code scavanged from HandleFunctionRequest() in tcop/fastpath.h
  * ----------------
  */
 char *
-PQfn(int fnid,
-     int *result_buf,		/* can't use void, dec compiler barfs */
-     int result_len,
-     int result_is_int,
+PQfn(int		fnid,
+     int		*result_buf,		/* can't use void, dec compiler barfs */
+     int		result_len,
+     int		result_is_int,
      PQArgBlock *args,
-     int nargs)
+     int		nargs)
 {
     char *retval;		/* XXX - should be datum, maybe ? */
     char *arg[8];
@@ -70,22 +70,28 @@ PQfn(int fnid,
      * ----------------
      */
     for (i = 0; i < nargs; i++) {
-	if (args[i].len == VAR_LENGTH_ARG) {
-	    arg[i] = (char*) args[i].u.ptr;
-	} else if (args[i].len > 4)  {
-	    elog(WARN,"arg_length of argument %d too long",i);
-	} else {
-	    arg[i] = (char*)args[i].u.integer;
-	}
+		if (args[i].len == VAR_LENGTH_ARG) {
+			arg[i] = (char*) args[i].u.ptr;
+		} else if (args[i].len > 4)  {
+			elog(WARN,"arg_length of argument %d too long",i);
+		} else {
+			arg[i] = (char*)args[i].u.integer;
+		}
     }
     
     /* ----------------
      *	call the postgres function manager
      * ----------------
      */
-    retval = (char *)
-	fmgr(fnid, arg[0], arg[1], arg[2], arg[3],
-	     arg[4], arg[5], arg[6], arg[7]);
+    retval = (char *)fmgr(fnid, 
+						  arg[0], 
+						  arg[1], 
+						  arg[2], 
+						  arg[3],
+						  arg[4], 
+						  arg[5], 
+						  arg[6], 
+						  arg[7]);
     
     /* ----------------
      *	put the result in the buffer the user specified and
@@ -93,12 +99,12 @@ PQfn(int fnid,
      * ----------------
      */
     if (retval == (char *) NULL)	/* void retval */
-	return "0";
+		return "0";
     
     if (result_is_int) {
-	*result_buf = (int) retval;
+		*result_buf = (int) retval;
     } else {
-	memmove(result_buf, retval, result_len); 
+		memmove(result_buf, retval, result_len); 
     }
     return "G";
 }

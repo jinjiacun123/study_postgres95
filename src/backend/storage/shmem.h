@@ -32,18 +32,18 @@ extern SHMEM_OFFSET ShmemBase;
 
 /* coerce an offset into a pointer in this process's address space */
 #define MAKE_PTR(xx_offs)\
-  (ShmemBase+((unsigned long)(xx_offs)))
+		  (ShmemBase+((unsigned long)(xx_offs)))
 
 /* coerce a pointer into a shmem offset */
 #define MAKE_OFFSET(xx_ptr)\
-  (SHMEM_OFFSET) (((unsigned long)(xx_ptr))-ShmemBase)
+		  (SHMEM_OFFSET) (((unsigned long)(xx_ptr))-ShmemBase)
 
 #define SHM_PTR_VALID(xx_ptr)\
-  (((unsigned long)xx_ptr) > ShmemBase)
+		  (((unsigned long)xx_ptr) > ShmemBase)
 
 /* cannot have an offset to ShmemFreeStart (offset 0) */
 #define SHM_OFFSET_VALID(xx_offs)\
-  ((xx_offs != 0) && (xx_offs != INVALID_OFFSET))
+		  ((xx_offs != 0) && (xx_offs != INVALID_OFFSET))
 
 
 extern SPINLOCK ShmemLock;
@@ -62,30 +62,30 @@ extern int InitShmem(unsigned int key, unsigned int size);
 extern long *ShmemAlloc(unsigned long size);
 extern int ShmemIsValid(unsigned long addr);
 extern HTAB *ShmemInitHash(char *name, long init_size, long max_size,
-			   HASHCTL *infoP, int hash_flags);
+						   HASHCTL *infoP, int hash_flags);
 extern bool ShmemPIDLookup(int pid, SHMEM_OFFSET* locationPtr);
 extern SHMEM_OFFSET ShmemPIDDestroy(int pid);
 extern long *ShmemInitStruct(char *name, unsigned long size,
-			     bool *foundPtr);
+							 bool *foundPtr);
 
 
 typedef int TableID;
 
 /* size constants for the binding table */
         /* max size of data structure string name */
-#define BTABLE_KEYSIZE  (50)
+#define BTABLE_KEYSIZE		(50)
         /* data in binding table hash bucket */
-#define BTABLE_DATASIZE (sizeof(BindingEnt) - BTABLE_KEYSIZE)
+#define BTABLE_DATASIZE		(sizeof(BindingEnt) - BTABLE_KEYSIZE)
         /* maximum size of the binding table */
-#define BTABLE_SIZE      (100)
+#define BTABLE_SIZE			(100)
 
 /* this is a hash bucket in the binding table */
 typedef struct {
-    char  	   key[BTABLE_KEYSIZE];	/* string name */
-    unsigned long  location;		/* location in shared mem */
-    unsigned long  size;		/* numbytes allocated for the
-					 * structure
-					 */
+    char			key[BTABLE_KEYSIZE];	/* string name */
+    unsigned long	location;				/* location in shared mem */
+    unsigned long	size;					/* numbytes allocated for the
+											* structure
+											*/
 } BindingEnt;
 
 /*
@@ -98,7 +98,7 @@ extern void SHMQueueDelete(SHM_QUEUE *queue);
 extern void SHMQueueInsertHD(SHM_QUEUE *queue, SHM_QUEUE *elem);
 extern void SHMQueueInsertTL(SHM_QUEUE *queue, SHM_QUEUE *elem);
 extern void SHMQueueFirst(SHM_QUEUE *queue, Pointer *nextPtrPtr,
-			  SHM_QUEUE *nextQueue);
+						  SHM_QUEUE *nextQueue);
 extern bool SHMQueueEmpty(SHM_QUEUE *queue);
 
 #endif	/* SHMEM_H */

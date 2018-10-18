@@ -148,12 +148,12 @@ RelationPutHeapTupleAtEnd(Relation relation, HeapTuple tuple)
     
     if (lastblock == 0)
 	{
-	    buffer = ReadBuffer(relation, lastblock);
-	    pageHeader = (Page)BufferGetPage(buffer);
+	    buffer		= ReadBuffer(relation, lastblock);
+	    pageHeader	= (Page)BufferGetPage(buffer);
 	    if (PageIsNew((PageHeader) pageHeader))
 		{
-		    buffer = ReleaseAndReadBuffer(buffer, relation, P_NEW);
-		    pageHeader = (Page)BufferGetPage(buffer);
+		    buffer		= ReleaseAndReadBuffer(buffer, relation, P_NEW);
+		    pageHeader	= (Page)BufferGetPage(buffer);
 		    PageInit(pageHeader, BufferGetPageSize(buffer), 0);
 		}
 	}
@@ -178,8 +178,8 @@ RelationPutHeapTupleAtEnd(Relation relation, HeapTuple tuple)
 			elog(WARN, "Tuple is too big: size %d", len);
 	}
     
-    offnum = PageAddItem((Page)pageHeader, (Item)tuple,
-						 tuple->t_len, InvalidOffsetNumber, LP_USED);
+    offnum		= PageAddItem((Page)pageHeader, (Item)tuple,
+							 tuple->t_len, InvalidOffsetNumber, LP_USED);
     
     itemId		= PageGetItemId((Page)pageHeader, offnum);
     item		= PageGetItem((Page)pageHeader, itemId);

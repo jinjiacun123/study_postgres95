@@ -172,9 +172,9 @@ PageAddItem(Page			page,
 		if (PageManagerShuffle == true) {
 			/* shuffle ItemId's (Do the PageManager Shuffle...) */
 			for (i = (limit - 1); i >= offsetNumber; i--) {
-				fromitemId = &((PageHeader)page)->pd_linp[i - 1];
-				toitemId = &((PageHeader)page)->pd_linp[i];
-				*toitemId = *fromitemId;
+				fromitemId	= &((PageHeader)page)->pd_linp[i - 1];
+				toitemId	= &((PageHeader)page)->pd_linp[i];
+				*toitemId	= *fromitemId;
 			}
 			shuffled = true;	/* need to increase "lower" */
 		} else { /* overwrite mode */
@@ -285,7 +285,7 @@ PageGetMaxOffsetNumber(Page page)
     
     low = ((PageHeader) page)->pd_lower;
     i = (low - (sizeof(PageHeaderData) - sizeof(ItemIdData)))
-	/ sizeof(ItemIdData);
+		/ sizeof(ItemIdData);
     
     return(i);
 }	

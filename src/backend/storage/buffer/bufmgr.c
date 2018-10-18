@@ -626,24 +626,24 @@ WriteBuffer(Buffer buffer)
     BufferDesc	*bufHdr;
 
     if (! LateWrite) {
-	return(FlushBuffer(buffer));
+		return (FlushBuffer(buffer));
     } else {
 
-	if (BufferIsLocal(buffer))
-	    return WriteLocalBuffer(buffer, TRUE);
-    
-	if (BAD_BUFFER_ID(buffer))
-	    return(FALSE);
+		if (BufferIsLocal(buffer))
+			return WriteLocalBuffer(buffer, TRUE);
+		
+		if (BAD_BUFFER_ID(buffer))
+			return (FALSE);
 
-	bufHdr = &BufferDescriptors[buffer-1];
-	
-	SpinAcquire(BufMgrLock);
-	Assert(bufHdr->refcount > 0);
-	bufHdr->flags |= BM_DIRTY; 
-	UnpinBuffer(bufHdr);
-	SpinRelease(BufMgrLock);
+		bufHdr = &BufferDescriptors[buffer-1];
+		
+		SpinAcquire(BufMgrLock);
+		Assert(bufHdr->refcount > 0);
+		bufHdr->flags |= BM_DIRTY; 
+		UnpinBuffer(bufHdr);
+		SpinRelease(BufMgrLock);
     }
-    return(TRUE);
+    return (TRUE);
 } 
 
 void
@@ -714,16 +714,16 @@ FlushBuffer(Buffer buffer)
     BufferDesc	*bufHdr;
 
     if (BufferIsLocal(buffer))
-	return FlushLocalBuffer(buffer);
+		return FlushLocalBuffer(buffer);
 	    
     if (BAD_BUFFER_ID(buffer))
-	return (STATUS_ERROR);
+		return (STATUS_ERROR);
     
     bufHdr = &BufferDescriptors[buffer-1];
     
     if (!BufferReplace(bufHdr, false)) {
-	elog(WARN, "FlushBuffer: cannot flush %d", bufHdr->tag.blockNum);
-	return (STATUS_ERROR);
+		elog(WARN, "FlushBuffer: cannot flush %d", bufHdr->tag.blockNum);
+		return (STATUS_ERROR);
     }
     
     SpinAcquire(BufMgrLock); 
@@ -1099,9 +1099,9 @@ BufferGetBlockNumber(Buffer buffer)
 
     /* XXX should be a critical section */
     if (BufferIsLocal(buffer))
-	return (LocalBufferDescriptors[-buffer-1].tag.blockNum);
+		return (LocalBufferDescriptors[-buffer-1].tag.blockNum);
     else
-	return (BufferDescriptors[buffer-1].tag.blockNum);
+		return (BufferDescriptors[buffer-1].tag.blockNum);
 }
 
 /*
@@ -1200,9 +1200,8 @@ BufferReplace(BufferDesc *bufHdr, bool bufferLockHeld)
 BlockNumber
 RelationGetNumberOfBlocks(Relation relation)
 {
-    return
-	((relation->rd_islocal) ? relation->rd_nblocks :
-							  smgrnblocks(relation->rd_rel->relsmgr, relation));
+    return ((relation->rd_islocal) ? relation->rd_nblocks :
+									 smgrnblocks(relation->rd_rel->relsmgr, relation));
 }
 
 /*

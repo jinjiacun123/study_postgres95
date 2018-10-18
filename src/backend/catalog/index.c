@@ -297,7 +297,6 @@ BuildFuncTupleDesc(FuncIndexInfo *funcInfo)
     funcname	= FIgetname(funcInfo);
     nargs		= FIgetnArgs(funcInfo);
     argtypes	= FIgetArglist(funcInfo);
-	printf("jim->function name:%s\n", funcname);
 	tuple		= SearchSysCacheTuple(PRONAME, 
 									  PointerGetDatum(funcname),
 									  Int32GetDatum(nargs), 

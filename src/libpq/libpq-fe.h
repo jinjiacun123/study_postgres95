@@ -27,18 +27,18 @@ extern "C" {
 #include "lib/dllist.h"
 
 typedef enum {CONNECTION_OK,
-	      CONNECTION_BAD}  ConnStatusType;
+			  CONNECTION_BAD}  ConnStatusType;
 
 typedef enum {
   PGRES_EMPTY_QUERY = 0,
-  PGRES_COMMAND_OK,  /* a query command that doesn't return */
-                    /* anything was executed properly by the backend */
-  PGRES_TUPLES_OK,  /* a query command that returns tuples */
-                   /* was executed properly by the backend, PGresult */
-                   /* contains the resulttuples */
+  PGRES_COMMAND_OK,		/* a query command that doesn't return */
+						/* anything was executed properly by the backend */
+  PGRES_TUPLES_OK,		/* a query command that returns tuples */
+						/* was executed properly by the backend, PGresult */
+						/* contains the resulttuples */
   PGRES_COPY_OUT, 
   PGRES_COPY_IN,
-  PGRES_BAD_RESPONSE, /* an unexpected response was recv'd from the backend */
+  PGRES_BAD_RESPONSE,	/* an unexpected response was recv'd from the backend */
   PGRES_NONFATAL_ERROR,
   PGRES_FATAL_ERROR
 
@@ -52,10 +52,10 @@ extern const char* pgresStatus[];
  */
 
 /* ERROR_MSG_LENGTH should really be the same as ELOG_MAXLEN in utils/elog.h*/
-#define ERROR_MSG_LENGTH 4096
-#define COMMAND_LENGTH 20
-#define REMARK_LENGTH 80
-#define PORTAL_NAME_LENGTH 16
+#define ERROR_MSG_LENGTH	4096
+#define COMMAND_LENGTH		20
+#define REMARK_LENGTH		80
+#define PORTAL_NAME_LENGTH	16
 
 /* ----------------
  * PQArgBlock --
@@ -68,14 +68,14 @@ typedef struct {
     int isint;
     union {
         int *ptr;	/* can't use void (dec compiler barfs)	*/
-	int integer;
+		int integer;
     } u;
 } PQArgBlock;
 
 typedef struct pgresAttDesc {
-  char* name; /* type name */
-  Oid adtid;  /* type id */
-  int2 adtsize; /* type size */
+  char* name;		/* type name */
+  Oid	adtid;		/* type id */
+  int2	adtsize;	/* type size */
 } PGresAttDesc;
 
 /* use char* for Attribute values,
@@ -87,31 +87,31 @@ typedef struct pgresAttDesc {
 #define NULL_LEN	(-1)	/* pg_result len for NULL value */
 
 typedef struct pgresAttValue {
-  int len; /* length in bytes of the value */
-  char *value; /* actual value */
+  int	len;	/* length in bytes of the value */
+  char	*value; /* actual value */
 } PGresAttValue;
 
 typedef struct pgNotify {
-    char relname[NAMEDATALEN];	/* name of relation containing data */
-    int be_pid;			/* process id of backend */
+    char	relname[NAMEDATALEN];	/* name of relation containing data */
+    int		be_pid;					/* process id of backend */
 } PGnotify;
 
 /* PGconn encapsulates a connection to the backend */
 typedef struct pg_conn{
-  char *pghost; /* the machine on which the server is running */
-  char *pgtty;  /* tty on which the backend messages is displayed */
-  char *pgport; /* the communication port with the backend */
-  char *pgoptions; /* options to start the backend with */
-  char *dbName; /* database name */
-  ConnStatusType status;
-  char errorMessage[ERROR_MSG_LENGTH];
+  char				*pghost;	/* the machine on which the server is running */
+  char				*pgtty;		/* tty on which the backend messages is displayed */
+  char				*pgport;	/* the communication port with the backend */
+  char				*pgoptions; /* options to start the backend with */
+  char				*dbName;	/* database name */
+  ConnStatusType	status;
+  char				errorMessage[ERROR_MSG_LENGTH];
   /* pipes for be/fe communication */
-  FILE *Pfin;
-  FILE *Pfout;
-  FILE *Pfdebug;
-  void *port; /* really a Port* */
-  int asyncNotifyWaiting;
-  Dllist* notifyList;
+  FILE				*Pfin;
+  FILE				*Pfout;
+  FILE				*Pfdebug;
+  void				*port;		/* really a Port* */
+  int				asyncNotifyWaiting;
+  Dllist*			notifyList;
 } PGconn;
 
 #define CMDSTATUS_LEN 40
@@ -119,15 +119,15 @@ typedef struct pg_conn{
 /* PGresult encapsulates the result of a query */
 /* unlike the old libpq, we assume that queries only return in one group */
 typedef struct pg_result{
-  int ntups;
-  int numAttributes;
-  PGresAttDesc *attDescs;
-  PGresAttValue* *tuples; /* each PGresTuple is an array of PGresAttValue's */
-  int tupArrSize;         /* size of tuples array allocated */
-  ExecStatusType resultStatus;
-  char cmdStatus[CMDSTATUS_LEN]; /* cmd status from the last insert query*/
-  int binary; /* binary tuple values if binary == 1, otherwise ASCII */
-  PGconn* conn;
+  int				ntups;
+  int				numAttributes;
+  PGresAttDesc		*attDescs;
+  PGresAttValue		** tuples;					/* each PGresTuple is an array of PGresAttValue's */
+  int				tupArrSize;					/* size of tuples array allocated */
+  ExecStatusType	resultStatus;
+  char				cmdStatus[CMDSTATUS_LEN];	/* cmd status from the last insert query*/
+  int				binary;						/* binary tuple values if binary == 1, otherwise ASCII */
+  PGconn			* conn;
 } PGresult;
 
 struct _PQprintOpt {

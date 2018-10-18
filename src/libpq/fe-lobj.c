@@ -127,28 +127,28 @@ lo_read(PGconn *conn, int fd, char *buf, int len)
 int
 lo_write(PGconn *conn, int fd, char *buf, int len)
 {
-    PQArgBlock argv[2];
-    PGresult *res;
-    int result_len;
-    int retval;
+    PQArgBlock	argv[2];
+    PGresult	*res;
+    int			result_len;
+    int			retval;
 
     if (len <= 0)
-	return 0;
+		return 0;
 
-    argv[0].isint = 1;
-    argv[0].len = 4;
-    argv[0].u.integer = fd;
+    argv[0].isint		= 1;
+    argv[0].len			= 4;
+    argv[0].u.integer	= fd;
 
-    argv[1].isint = 0;
-    argv[1].len = len;
-    argv[1].u.ptr = (int*)buf;
+    argv[1].isint	= 0;
+    argv[1].len		= len;
+    argv[1].u.ptr	= (int*)buf;
 
     res = PQfn(conn, F_LOWRITE,&retval,&result_len,1,argv,2);
     if (PQresultStatus(res) == PGRES_COMMAND_OK) {
-	PQclear(res);
-	return retval;
+		PQclear(res);
+		return retval;
     } else
-	return -1;
+		return -1;
 }
 
 /*
