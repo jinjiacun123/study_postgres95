@@ -48,8 +48,8 @@
 #include "catalog/indexing.h"
 #include "catalog/index.h"
 
-#define ALLOC(t, c)	(t *)calloc((unsigned)(c), sizeof(t))
-#define FIRST_TYPE_OID 16	/* OID of the first type */
+#define ALLOC(t, c)		(t *)calloc((unsigned)(c), sizeof(t))
+#define FIRST_TYPE_OID	16	/* OID of the first type */
 
 /* ----------------
  *	global variables
@@ -600,7 +600,8 @@ InsertOneValue(Oid objectid, char *value, int i)
 		Assert(0);
     }
     
-    if (Typ != (struct typmap **)NULL) {
+    if (Typ != (struct typmap **)NULL) 
+	{
 		struct typmap *ap;
 		if (DebugMode)
 			puts("Typ != NULL");
@@ -613,18 +614,20 @@ InsertOneValue(Oid objectid, char *value, int i)
 					reldesc->rd_att->attrs[i]->atttypid
 				  );
 			Assert(0);
-	}
-	values[i] = fmgr(ap->am_typ.typinput,
-					 value,
-					 ap->am_typ.typelem,
-					 -1); /* shouldn't have char() or varchar() types
-							 during boostrapping but just to be safe */
-	prt = fmgr(ap->am_typ.typoutput, 
-			   values[i],
-			   ap->am_typ.typelem);
-	if (!Quiet) printf("%s ", prt);
+		}
+		values[i] = fmgr(ap->am_typ.typinput,
+						 value,
+						 ap->am_typ.typelem,
+						 -1); /* shouldn't have char() or varchar() types
+								 during boostrapping but just to be safe */
+		prt = fmgr(ap->am_typ.typoutput, 
+				   values[i],
+				   ap->am_typ.typelem);
+		if (!Quiet) printf("%s ", prt);
 		pfree(prt);
-    } else {
+    } 
+	else 
+	{
 		typeindex = attrtypes[i]->atttypid - FIRST_TYPE_OID;
 		if (DebugMode)
 			printf("Typ == NULL, typeindex = %d idx = %d\n", typeindex, i);
@@ -632,10 +635,10 @@ InsertOneValue(Oid objectid, char *value, int i)
 					     value,
 						 Procid[typeindex].elem, 
 						 -1);
-	prt = fmgr(Procid[typeindex].outproc, 
-			   values[i],
-			   Procid[typeindex].elem);
-	if (!Quiet) printf("%s ", prt);
+		prt = fmgr(Procid[typeindex].outproc, 
+				   values[i],
+				   Procid[typeindex].elem);
+		if (!Quiet) printf("%s ", prt);
 		pfree(prt);
     }
     if (DebugMode) {

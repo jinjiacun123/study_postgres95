@@ -19,10 +19,10 @@
 
 #include "utils/memutils.h"	/* where declarations of this file goes */
 
-static Pointer OrderedElemGetBase(OrderedElem elem);
-static void OrderedElemInit(OrderedElem elem, OrderedSet set);
-static void OrderedElemPush(OrderedElem elem);
-static void OrderedElemPushHead(OrderedElem elem);
+static Pointer	OrderedElemGetBase(OrderedElem elem);
+static void		OrderedElemInit(OrderedElem elem, OrderedSet set);
+static void		OrderedElemPush(OrderedElem elem);
+static void		OrderedElemPushHead(OrderedElem elem);
 
 /*
  * OrderedElemGetBase --
@@ -32,7 +32,7 @@ static Pointer
 OrderedElemGetBase(OrderedElem elem)
 {
     if (elem == (OrderedElem) NULL)
-	return (Pointer) NULL;
+		return (Pointer) NULL;
     
     return ((Pointer)((char*)(elem) - (elem)->set->offset));
 }
@@ -81,7 +81,7 @@ OrderedSetGetHead(OrderedSet set)
     
     elem = set->head;
     if (elem->next) {
-	return (OrderedElemGetBase(elem));
+		return (OrderedElemGetBase(elem));
     }
     return (NULL);
 }
@@ -96,7 +96,7 @@ OrderedSetGetTail(OrderedSet set)
     
     elem = set->tail;
     if (elem->prev) {
-	return (OrderedElemGetBase(elem));
+		return (OrderedElemGetBase(elem));
     }
     return (NULL);
 }
@@ -109,7 +109,7 @@ OrderedElemGetPredecessor(OrderedElem elem)
 {
     elem = elem->prev;
     if (elem->prev) {
-	return (OrderedElemGetBase(elem));
+		return (OrderedElemGetBase(elem));
     }
     return (NULL);
 }
@@ -122,7 +122,7 @@ OrderedElemGetSuccessor(OrderedElem elem)
 {
     elem = elem->next;
     if (elem->next) {
-	return (OrderedElemGetBase(elem));
+		return (OrderedElemGetBase(elem));
     }
     return (NULL);
 }

@@ -83,7 +83,7 @@ tag_hash(int *key, int keysize)
 	    
 	default:
 	    for(; keysize > (sizeof(int)-1); keysize -= sizeof(int), key++)
-		h = h * PRIME1 ^ (*key);
+			h = h * PRIME1 ^ (*key);
 	    /*
 	     * now let's grab the last few bytes of the tag if the tag
 	     * has (size % 4) != 0 (which it sometimes will on a sun3).
@@ -126,28 +126,28 @@ tag_hash(int *key, int keysize)
 long
 disk_hash(char *key)
 {
-    register int n = 0;
+    register int  n = 0;
     register char *str = key;
-    register int len = strlen(key);
-    register int loop;
+    register int  len = strlen(key);
+    register int  loop;
     
 #define HASHC   n = *str++ + 65599 * n
     
     if (len > 0) {
-	loop = (len + 8 - 1) >> 3;
+		loop = (len + 8 - 1) >> 3;
 	
-	switch(len & (8 - 1)) {
-	case 0: do {		/* All fall throughs */
-	    HASHC;  
-	case 7: HASHC;
-	case 6: HASHC;  
-	case 5: HASHC;
-	case 4: HASHC;  
-	case 3: HASHC;
-	case 2: HASHC;  
-	case 1: HASHC;
-	} while (--loop);
-	}
+		switch(len & (8 - 1)) {
+			case 0: do {		/* All fall throughs */
+				HASHC;  
+				case 7: HASHC;
+				case 6: HASHC;  
+				case 5: HASHC;
+				case 4: HASHC;  
+				case 3: HASHC;
+				case 2: HASHC;  
+				case 1: HASHC;
+				} while (--loop);
+		}
 	
     }
     return(n);

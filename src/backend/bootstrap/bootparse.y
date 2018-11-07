@@ -148,11 +148,11 @@ CreateStmt:
 				/* extern Oid heap_create();*/
 
 				tupdesc = CreateTupleDesc(numattr,attrtypes);
-				id = heap_create(LexIDStr($3),
-								 NULL,
-								 'n',
-								 DEFAULT_SMGR,
-								 tupdesc);
+				id		= heap_create(LexIDStr($3),
+								   	  NULL,
+									  'n',
+									  DEFAULT_SMGR,
+									  tupdesc);
 				if (!Quiet)
 					printf("CREATED relation %s with OID %d\n",
 					       LexIDStr($3), 

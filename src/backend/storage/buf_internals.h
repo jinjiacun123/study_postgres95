@@ -45,13 +45,13 @@ extern int Num_Descriptors;
 #define BM_IO_IN_PROGRESS	(1 << 5)
 #define BM_IO_ERROR			(1 << 6)
 
-typedef bits16 BufFlags;
+typedef bits16			BufFlags;
 
 typedef struct sbufdesc BufferDesc;
 typedef struct sbufdesc BufferHdr;
 typedef struct buftag	BufferTag;
 /* long * so alignment will be correct */
-typedef long **BufferBlock;
+typedef long			**BufferBlock;
 
 struct buftag{
   LRelId		relId;
@@ -94,7 +94,7 @@ struct buftag{
 
 /*
  *  struct sbufdesc -- shared buffer cache metadata for a single
- *						shared buffer descriptor.
+ *					   shared buffer descriptor.
  *
  *	We keep the name of the database and relation in which this
  *	buffer appears in order to avoid a catalog lookup on cache
@@ -138,37 +138,11 @@ struct sbufdesc {
 
 /* NO spinlock */
 
-#if defined(PORTNAME_ultrix4)
-    char			sb_pad[60];	/* no slock_t */
-#endif /* mips */
-
 /* HAS_TEST_AND_SET -- platform dependent size */
-
-#if defined(PORTNAME_aix)
-    char			sb_pad[44];	/* typedef unsigned int slock_t; */
-#endif /* aix */
-#if defined(PORTNAME_alpha)
-    char			sb_pad[40];	/* typedef msemaphore slock_t; */
-#endif /* alpha */
-#if defined(PORTNAME_hpux)
-    char			sb_pad[44];	/* typedef struct { int sem[4]; } slock_t; */
-#endif /* hpux */
-#if defined(PORTNAME_irix5)
-    char			sb_pad[44];	/* typedef abilock_t slock_t; */
-#endif /* irix5 */
-#if defined(PORTNAME_next)
-    char			sb_pad[56];	/* typedef struct mutex slock_t; */
-#endif /* next */
 
 /* HAS_TEST_AND_SET -- default 1 byte spinlock */
 
-#if defined(PORTNAME_BSD44_derived) || \
-    defined(PORTNAME_bsdi) || \
-    defined(PORTNAME_bsdi_2_1) || \
-    defined(PORTNAME_i386_solaris) || \
-    defined(PORTNAME_linux) || \
-    defined(PORTNAME_sparc) || \
-    defined(PORTNAME_sparc_solaris)
+#if defined(PORTNAME_linux)
     char			sb_pad[56];	/* has slock_t */
 #endif /* 1 byte slock_t */
 };

@@ -178,8 +178,11 @@ RelationPutHeapTupleAtEnd(Relation relation, HeapTuple tuple)
 			elog(WARN, "Tuple is too big: size %d", len);
 	}
     
-    offnum		= PageAddItem((Page)pageHeader, (Item)tuple,
-							 tuple->t_len, InvalidOffsetNumber, LP_USED);
+    offnum		= PageAddItem((Page)pageHeader, 
+							  (Item)tuple,
+							  tuple->t_len, 
+							  InvalidOffsetNumber, 
+							  LP_USED);
     
     itemId		= PageGetItemId((Page)pageHeader, offnum);
     item		= PageGetItem((Page)pageHeader, itemId);

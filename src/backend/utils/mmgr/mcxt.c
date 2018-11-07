@@ -38,14 +38,14 @@
 static int MemoryContextEnableCount = 0;
 #define MemoryContextEnabled	(MemoryContextEnableCount > 0)
 
-static OrderedSetData	ActiveGlobalMemorySetData;	/* uninitialized */
+static OrderedSetData			ActiveGlobalMemorySetData;	/* uninitialized */
 #define ActiveGlobalMemorySet	(&ActiveGlobalMemorySetData)
 
 /*
  * description of allocated memory representation goes here
  */
 
-#define PSIZE(PTR)	(*((int32 *)(PTR) - 1))
+#define PSIZE(PTR)		(*((int32 *)(PTR) - 1))
 #define PSIZEALL(PTR)	(*((int32 *)(PTR) - 1) + sizeof (int32))
 #define PSIZESKIP(PTR)	((char *)((int32 *)(PTR) + 1))
 #define PSIZEFIND(PTR)	((char *)((int32 *)(PTR) - 1))
@@ -71,10 +71,10 @@ MemoryContext	CurrentMemoryContext = NULL;
  *    PRIVATE DEFINITIONS                                                    *
  *****************************************************************************/
 
-static Pointer GlobalMemoryAlloc(GlobalMemory this, Size size);
-static void GlobalMemoryFree(GlobalMemory this,	Pointer	pointer);
-static Pointer GlobalMemoryRealloc(GlobalMemory this, Pointer pointer,
-				   Size size);
+static Pointer	GlobalMemoryAlloc(GlobalMemory this, Size size);
+static void		GlobalMemoryFree(GlobalMemory this,	Pointer	pointer);
+static Pointer	GlobalMemoryRealloc(GlobalMemory this, Pointer pointer,
+								   Size size);
 static char *GlobalMemoryGetName(GlobalMemory this);
 static void GlobalMemoryDump(GlobalMemory this);
 static void DumpGlobalMemories(void);
@@ -88,8 +88,8 @@ static struct MemoryContextMethodsData	GlobalContextMethodsData = {
     GlobalMemoryAlloc,	  /* Pointer (*)(this, uint32)	palloc */
     GlobalMemoryFree,	  /* void (*)(this, Pointer)	pfree */
     GlobalMemoryRealloc,  /* Pointer (*)(this, Pointer)	repalloc */
-    GlobalMemoryGetName,  /* char* (*)(this)		getName */
-    GlobalMemoryDump	  /* void (*)(this)		dump */
+    GlobalMemoryGetName,  /* char* (*)(this)		    getName */
+    GlobalMemoryDump	  /* void (*)(this)		        dump */
 };
 
 /*
@@ -99,13 +99,13 @@ static struct MemoryContextMethodsData	GlobalContextMethodsData = {
 /* extern bool EqualGlobalMemory(); */
 
 static struct GlobalMemory TopGlobalMemoryData = {
-    T_GlobalMemory,		/* NodeTag		tag 	  */
+    T_GlobalMemory,				/* NodeTag		tag 	  */
     &GlobalContextMethodsData,	/* ContextMethods	method    */
-    { { 0 } },			/* uninitialized
+    { { 0 } },					/* uninitialized
                                  * OrderedSetData allocSetD
-				 */
-    "TopGlobal",		/* char* name      */
-    { 0 }			/* uninitialized OrderedElemData elemD */
+								 */
+    "TopGlobal",				/* char* name      */
+    { 0 }						/* uninitialized OrderedElemData elemD */
 };
 
 /*
@@ -147,52 +147,48 @@ EnableMemoryContext(bool on)
     AssertArg(BoolIsValid(on));
     
     if (BypassEnable(&MemoryContextEnableCount, on)) {
-	return;
+		return;
     }
     
     processing = true;
     
     if (on) {	/* initialize */
-	/* initialize TopGlobalMemoryData.setData */
-	AllocSetInit(&TopGlobalMemoryData.setData, DynamicAllocMode,
-		     (Size)0);
-	
-	/* make TopGlobalMemoryData member of ActiveGlobalMemorySet */
-	OrderedSetInit(ActiveGlobalMemorySet,
-		       offsetof(struct GlobalMemory, elemData));
-	OrderedElemPushInto(&TopGlobalMemoryData.elemData,
-			    ActiveGlobalMemorySet);
-	
-	/* initialize CurrentMemoryContext */
-	CurrentMemoryContext = TopMemoryContext;
+		/* initialize TopGlobalMemoryData.setData */
+		AllocSetInit(&TopGlobalMemoryData.setData, DynamicAllocMode, (Size)0);
+		
+		/* make TopGlobalMemoryData member of ActiveGlobalMemorySet */
+		OrderedSetInit(ActiveGlobalMemorySet, offsetof(struct GlobalMemory, elemData));
+		OrderedElemPushInto(&TopGlobalMemoryData.elemData, ActiveGlobalMemorySet);
+		
+		/* initialize CurrentMemoryContext */
+		CurrentMemoryContext = TopMemoryContext;
 	
     } else {	/* cleanup */
-	GlobalMemory	context;
-	
-	/* walk the list of allocations */
-	while (PointerIsValid(context = (GlobalMemory)
-			      OrderedSetGetHead(ActiveGlobalMemorySet))) {
-	    
-	    if (context == &TopGlobalMemoryData) {
-		/* don't free it and clean it last */
-		OrderedElemPop(&TopGlobalMemoryData.elemData);
-	    } else {
-		GlobalMemoryDestroy(context);
-	    }
-	    /* what is needed for the top? */
-	}
-	
-	/*
-	 * Freeing memory here should be safe as this is called
-	 * only after all modules which allocate in TopMemoryContext
-	 * have been disabled.
-	 */
-	
-	/* step through remaining allocations and log */
-	/* AllocSetStep(...); */
-	
-	/* deallocate whatever is left */
-	AllocSetReset(&TopGlobalMemoryData.setData);
+		GlobalMemory	context;
+		
+		/* walk the list of allocations */
+		while (PointerIsValid(context = (GlobalMemory) OrderedSetGetHead(ActiveGlobalMemorySet))) {
+			
+			if (context == &TopGlobalMemoryData) {
+			/* don't free it and clean it last */
+				OrderedElemPop(&TopGlobalMemoryData.elemData);
+			} else {
+				GlobalMemoryDestroy(context);
+			}
+			/* what is needed for the top? */
+		}
+		
+		/*
+		 * Freeing memory here should be safe as this is called
+		 * only after all modules which allocate in TopMemoryContext
+		 * have been disabled.
+		 */
+		
+		/* step through remaining allocations and log */
+		/* AllocSetStep(...); */
+		
+		/* deallocate whatever is left */
+		AllocSetReset(&TopGlobalMemoryData.setData);
     }
     
     processing = false;
@@ -216,8 +212,9 @@ MemoryContextAlloc(MemoryContext context, Size size)
     AssertState(MemoryContextEnabled);
     AssertArg(MemoryContextIsValid(context));
     
-    LogTrap(!AllocSizeIsValid(size), BadAllocSize,
-	    ("size=%d [0x%x]", size, size));
+    LogTrap(!AllocSizeIsValid(size), 
+			BadAllocSize,
+			("size=%d [0x%x]", size, size));
     
     return (context->method->alloc(context, size));
 }
@@ -255,16 +252,17 @@ MemoryContextFree(MemoryContext context, Pointer pointer)
  *	BadArgumentsErr if firstTime is true for subsequent calls.
  */
 Pointer
-MemoryContextRealloc(MemoryContext context,
-		     Pointer	pointer,
-		     Size size)
+MemoryContextRealloc(MemoryContext	context,
+					 Pointer		pointer,
+					 Size			size)
 {
     AssertState(MemoryContextEnabled);
     AssertArg(MemoryContextIsValid(context));
     AssertArg(PointerIsValid(pointer));
     
-    LogTrap(!AllocSizeIsValid(size), BadAllocSize,
-	    ("size=%d [0x%x]", size, size));
+    LogTrap(!AllocSizeIsValid(size), 
+			BadAllocSize,
+			("size=%d [0x%x]", size, size));
     
     return (context->method->realloc(context, pointer, size));
 }
@@ -439,9 +437,9 @@ GlobalMemoryFree(GlobalMemory this,
  *	NoMoreMemoryErr if allocation fails.
  */
 static Pointer
-GlobalMemoryRealloc(GlobalMemory this,
-		    Pointer pointer,
-		    Size size)
+GlobalMemoryRealloc(GlobalMemory	this,
+					Pointer			pointer,
+					Size			size)
 {
     return (AllocSetRealloc(&this->setData, pointer, size));
 }
@@ -475,12 +473,12 @@ GlobalMemoryDump(GlobalMemory this)
     
     context = (GlobalMemory)OrderedElemGetPredecessor(&this->elemData);
     if (PointerIsValid(context)) {
-	printf("\tpredecessor=%s\n", GlobalMemoryGetName(context));
+		printf("\tpredecessor=%s\n", GlobalMemoryGetName(context));
     }
     
     context = (GlobalMemory)OrderedElemGetSuccessor(&this->elemData);
     if (PointerIsValid(context)) {
-	printf("\tsucessor=%s\n", GlobalMemoryGetName(context));
+		printf("\tsucessor=%s\n", GlobalMemoryGetName(context));
     }
     
     AllocSetDump(&this->setData);	/* XXX is this right interface */
@@ -501,10 +499,9 @@ DumpGlobalMemories()
     context = (GlobalMemory)OrderedSetGetHead(&ActiveGlobalMemorySetData);
     
     while (PointerIsValid(context)) {
-	GlobalMemoryDump(context);
-	
-	context = (GlobalMemory)OrderedElemGetSuccessor(
-							&context->elemData);
+		GlobalMemoryDump(context);
+		
+		context = (GlobalMemory)OrderedElemGetSuccessor(&context->elemData);
     }
 }
 

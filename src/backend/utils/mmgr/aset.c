@@ -121,7 +121,7 @@ AllocSetReset(AllocSet set)
     AssertArg(AllocSetIsValid(set));
     
     while (AllocPointerIsValid(pointer = AllocSetGetFirst(set))) {
-	AllocSetFree(set, pointer);
+		AllocSetFree(set, pointer);
     }
 }
 
@@ -133,7 +133,7 @@ AllocSetReset_debug(char *file, int line, AllocSet set)
     AssertArg(AllocSetIsValid(set));
     
     while (AllocPointerIsValid(pointer = AllocSetGetFirst(set))) {
-	AllocSetFree(set, pointer);
+		AllocSetFree(set, pointer);
     }
 }
 
@@ -175,7 +175,7 @@ AllocSetAlloc(AllocSet set, Size size)
     alloc = (AllocElem)malloc(sizeof (*alloc) + size);
     
     if (!PointerIsValid(alloc)) {
-	elog (FATAL, "palloc failure: memory exhausted");
+		elog (FATAL, "palloc failure: memory exhausted");
     }
     
     /* add to allocation list */
@@ -230,7 +230,7 @@ AllocPointer
 AllocSetRealloc(AllocSet set, AllocPointer pointer, Size size)
 {
     AllocPointer	newPointer;
-    AllocElem	alloc;
+    AllocElem		alloc;
     
     /* AssertArg(AllocSetIsValid(set)); */
     /* AssertArg(AllocPointerIsValid(pointer)); */
@@ -272,19 +272,19 @@ int
 AllocSetIterate(AllocSet set,
 		void (*function)(AllocPointer pointer))
 {
-    int		count = 0;
+    int				count = 0;
     AllocPointer	pointer;
     
     AssertArg(AllocSetIsValid(set));
     
     for (pointer = AllocSetGetFirst(set);
-	 AllocPointerIsValid(pointer);
-	 pointer = AllocPointerGetNext(pointer)) {
+		 AllocPointerIsValid(pointer);
+		 pointer = AllocPointerGetNext(pointer)) {
 	
-	if (PointerIsValid(function)) {
-	    (*function)(pointer);
-	}
-	count += 1;
+		if (PointerIsValid(function)) {
+			(*function)(pointer);
+		}
+		count += 1;
     }
     
     return (count);
@@ -299,9 +299,9 @@ AllocSetCount(AllocSet set)
     AssertArg(AllocSetIsValid(set));
     
     for (pointer = AllocSetGetFirst(set);
-	 AllocPointerIsValid(pointer);
-	 pointer = AllocPointerGetNext(pointer)) {
-	count++;
+		 AllocPointerIsValid(pointer);
+		 pointer = AllocPointerGetNext(pointer)) {
+			count++;
     }
     return count;
 }
@@ -325,7 +325,7 @@ AllocSetGetFirst(AllocSet set)
     alloc = (AllocElem)OrderedSetGetHead(&set->setData);
     
     if (!AllocElemIsValid(alloc)) {
-	return (NULL);
+		return (NULL);
     }
     
     return (AllocElemGetAllocPointer(alloc));
@@ -343,11 +343,10 @@ AllocPointerGetNext(AllocPointer pointer)
 {
     AllocElem	alloc;
     
-    alloc = (AllocElem)
-	OrderedElemGetSuccessor(&AllocPointerGetAllocElem(pointer)->elemData);
+    alloc = (AllocElem)OrderedElemGetSuccessor(&AllocPointerGetAllocElem(pointer)->elemData);
     
     if (!AllocElemIsValid(alloc)) {
-	return (NULL);
+		return (NULL);
     }
     
     return (AllocElemGetAllocPointer(alloc));

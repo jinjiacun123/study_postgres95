@@ -329,7 +329,7 @@ mdread(Relation reln, BlockNumber blocknum, char *buffer)
     status = SM_SUCCESS;
     if ((nbytes = FileRead(v->mdfd_vfd, buffer, BLCKSZ)) != BLCKSZ) {
 		if (nbytes == 0) {
-		memset(buffer, 0, BLCKSZ); 
+			memset(buffer, 0, BLCKSZ); 
 		} else {
 			status = SM_FAIL;
 		}

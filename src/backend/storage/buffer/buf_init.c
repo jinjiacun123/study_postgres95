@@ -55,13 +55,13 @@ int		Num_Descriptors;
 BufferDesc		*BufferDescriptors;
 BufferBlock 	BufferBlocks;
 #ifndef HAS_TEST_AND_SET
-long	*NWaitIOBackendP;
+long			*NWaitIOBackendP;
 #endif
 
-extern IpcSemaphoreId      WaitIOSemId;
+extern IpcSemaphoreId		WaitIOSemId;
 
-long	*PrivateRefCount;	/* also used in freelist.c */
-long	*LastRefCount;  /* refcounts of last ExecMain level */
+long						*PrivateRefCount;	/* also used in freelist.c */
+long						*LastRefCount;  /* refcounts of last ExecMain level */
 
 /*
  * Data Structures:
@@ -153,21 +153,21 @@ InitBufferPool(IPCKey key)
     TraceBuf = (bmtrace *) &(CurTraceBuf[1]);
 #endif
     
-    BufferDescriptors = (BufferDesc *)
-							ShmemInitStruct("Buffer Descriptors",
-											Num_Descriptors*sizeof(BufferDesc),&foundDescs);
+    BufferDescriptors = (BufferDesc *)ShmemInitStruct("Buffer Descriptors",
+													  Num_Descriptors*sizeof(BufferDesc),
+													  &foundDescs);
     
-    BufferBlocks = (BufferBlock)
-					ShmemInitStruct("Buffer Blocks",
-									NBuffers*BLCKSZ,&foundBufs);
+    BufferBlocks = (BufferBlock)ShmemInitStruct("Buffer Blocks",
+												NBuffers*BLCKSZ,
+												&foundBufs);
     
 #ifndef HAS_TEST_AND_SET
     {
 		bool foundNWaitIO;
 		
 		NWaitIOBackendP = (long *)ShmemInitStruct("#Backends Waiting IO",
-							  sizeof(long),
-							  &foundNWaitIO);
+												  sizeof(long),
+												  &foundNWaitIO);
 		if (!foundNWaitIO)
 			*NWaitIOBackendP = 0;
     }
@@ -184,8 +184,8 @@ InitBufferPool(IPCKey key)
 		BufferDesc *buf;
 		unsigned long block;
 		
-		buf = BufferDescriptors;
-		block = (unsigned long) BufferBlocks;
+		buf		= BufferDescriptors;
+		block	= (unsigned long) BufferBlocks;
 	
 		/*
 		 * link the buffers into a circular, doubly-linked list to

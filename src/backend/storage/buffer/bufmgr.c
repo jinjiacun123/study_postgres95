@@ -312,68 +312,68 @@ ReadBufferWithBufferLock(Relation	 reln,
  * When this routine returns, the BufMgrLock is guaranteed NOT be held.
  */
 static BufferDesc *
-BufferAlloc(Relation reln,
-	    BlockNumber blockNum,
-	    bool	*foundPtr,
-	    bool bufferLockHeld)
+BufferAlloc(Relation	reln,
+			BlockNumber blockNum,
+			bool		*foundPtr,
+			bool		bufferLockHeld)
 {
-    BufferDesc 		*buf, *buf2;	  
-    BufferTag 		newTag;	 /* identity of requested block */
-    bool		inProgress; /* buffer undergoing IO */
-    bool		newblock = FALSE;
+    BufferDesc 		*buf, *buf2; 
+    BufferTag 		newTag;		/* identity of requested block */
+    bool			inProgress; /* buffer undergoing IO */
+    bool			newblock = FALSE;
     
     /* create a new tag so we can lookup the buffer */
     /* assume that the relation is already open */
     if (blockNum == P_NEW) {
-	newblock = TRUE;
-	blockNum = smgrnblocks(reln->rd_rel->relsmgr, reln);
+		newblock = TRUE;
+		blockNum = smgrnblocks(reln->rd_rel->relsmgr, reln);
     }
     
     INIT_BUFFERTAG(&newTag,reln,blockNum);
     
     if (!bufferLockHeld)
-	SpinAcquire(BufMgrLock);
+		SpinAcquire(BufMgrLock);
     
     /* see if the block is in the buffer pool already */
     buf = BufTableLookup(&newTag);
     if (buf != NULL) {
-	/* Found it.  Now, (a) pin the buffer so no
-	 * one steals it from the buffer pool, 
-	 * (b) check IO_IN_PROGRESS, someone may be
-	 * faulting the buffer into the buffer pool.
-	 */
-	
-	PinBuffer(buf);
-	inProgress = (buf->flags & BM_IO_IN_PROGRESS);
-	
-	*foundPtr = TRUE;
-	if (inProgress) {
-	    WaitIO(buf, BufMgrLock);
-	    if (buf->flags & BM_IO_ERROR) {
-		/* wierd race condition: 
-		 *
-		 * We were waiting for someone else to read the buffer.  
-		 * While we were waiting, the reader boof'd in some
-		 *  way, so the contents of the buffer are still
-		 * invalid.  By saying that we didn't find it, we can
-		 * make the caller reinitialize the buffer.  If two
-		 * processes are waiting for this block, both will
-		 * read the block.  The second one to finish may overwrite 
-		 * any updates made by the first.  (Assume higher level
-		 * synchronization prevents this from happening).
-		 *
-		 * This is never going to happen, don't worry about it.
+		/* Found it.  Now, (a) pin the buffer so no
+		 * one steals it from the buffer pool, 
+		 * (b) check IO_IN_PROGRESS, someone may be
+		 * faulting the buffer into the buffer pool.
 		 */
-		*foundPtr = FALSE;
-	    }
-	}
+	
+		PinBuffer(buf);
+		inProgress = (buf->flags & BM_IO_IN_PROGRESS);
+	
+		*foundPtr = TRUE;
+		if (inProgress) {
+			WaitIO(buf, BufMgrLock);
+			if (buf->flags & BM_IO_ERROR) {
+				/* wierd race condition: 
+				 *
+				 * We were waiting for someone else to read the buffer.  
+				 * While we were waiting, the reader boof'd in some
+				 *  way, so the contents of the buffer are still
+				 * invalid.  By saying that we didn't find it, we can
+				 * make the caller reinitialize the buffer.  If two
+				 * processes are waiting for this block, both will
+				 * read the block.  The second one to finish may overwrite 
+				 * any updates made by the first.  (Assume higher level
+				 * synchronization prevents this from happening).
+				 *
+				 * This is never going to happen, don't worry about it.
+				 */
+				*foundPtr = FALSE;
+			}
+		}
 #ifdef BMTRACE
-	_bm_trace((reln->rd_rel->relisshared ? 0 : MyDatabaseId), reln->rd_id, blockNum, BufferDescriptorGetBuffer(buf), BMT_ALLOCFND);
+		_bm_trace((reln->rd_rel->relisshared ? 0 : MyDatabaseId), reln->rd_id, blockNum, BufferDescriptorGetBuffer(buf), BMT_ALLOCFND);
 #endif /* BMTRACE */
 	
-	SpinRelease(BufMgrLock);
+		SpinRelease(BufMgrLock);
 	
-	return(buf);
+		return(buf);
     }
     
     *foundPtr = FALSE;
@@ -387,164 +387,167 @@ BufferAlloc(Relation reln,
     inProgress = FALSE;
     for (buf = (BufferDesc *) NULL; buf == (BufferDesc *) NULL; ) {
 	
-	/* GetFreeBuffer will abort if it can't find a free buffer */
-	buf = GetFreeBuffer();
+		/* GetFreeBuffer will abort if it can't find a free buffer */
+		buf = GetFreeBuffer();
+		
+		/* 
+		 * But it can return buf == NULL if we are in aborting 
+		 * transaction now and so elog(WARN,...) in GetFreeBuffer 
+		 * will not abort again.
+		 */
+		if ( buf == NULL )
+			return (NULL);
 	
-	/* 
-	 * But it can return buf == NULL if we are in aborting 
-	 * transaction now and so elog(WARN,...) in GetFreeBuffer 
-	 * will not abort again.
-	 */
-	if ( buf == NULL )
-		return (NULL);
+		/*
+		 * There should be exactly one pin on the buffer after
+		 * it is allocated -- ours.  If it had a pin it wouldn't
+		 * have been on the free list.  No one else could have
+		 * pinned it between GetFreeBuffer and here because we
+		 * have the BufMgrLock.
+		 */
+		Assert(buf->refcount == 0);
+		buf->refcount = 1;	       
+		PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 1;
 	
-	/*
-	 * There should be exactly one pin on the buffer after
-	 * it is allocated -- ours.  If it had a pin it wouldn't
-	 * have been on the free list.  No one else could have
-	 * pinned it between GetFreeBuffer and here because we
-	 * have the BufMgrLock.
-	 */
-	Assert(buf->refcount == 0);
-	buf->refcount = 1;	       
-	PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 1;
-	
-	if (buf->flags & BM_DIRTY) {
-	    bool smok;
-	    /*
-	     * Set BM_IO_IN_PROGRESS to keep anyone from doing anything
-	     * with the contents of the buffer while we write it out.
-	     * We don't really care if they try to read it, but if they
-	     * can complete a BufferAlloc on it they can then scribble
-	     * into it, and we'd really like to avoid that while we are
-	     * flushing the buffer.  Setting this flag should block them
-	     * in WaitIO until we're done.
-	     */
-	    inProgress = TRUE;
-	    buf->flags |= BM_IO_IN_PROGRESS; 
+		if (buf->flags & BM_DIRTY) 
+		{
+			bool smok;
+			/*
+			 * Set BM_IO_IN_PROGRESS to keep anyone from doing anything
+			 * with the contents of the buffer while we write it out.
+			 * We don't really care if they try to read it, but if they
+			 * can complete a BufferAlloc on it they can then scribble
+			 * into it, and we'd really like to avoid that while we are
+			 * flushing the buffer.  Setting this flag should block them
+			 * in WaitIO until we're done.
+			 */
+			inProgress = TRUE;
+			buf->flags |= BM_IO_IN_PROGRESS; 
 #ifdef HAS_TEST_AND_SET
-	    /*
-	     * All code paths that acquire this lock pin the buffer
-	     * first; since no one had it pinned (it just came off the
-	     * free list), no one else can have this lock.
-	     */
-	    Assert(S_LOCK_FREE(&(buf->io_in_progress_lock)));
-	    S_LOCK(&(buf->io_in_progress_lock));
+			/*
+			 * All code paths that acquire this lock pin the buffer
+			 * first; since no one had it pinned (it just came off the
+			 * free list), no one else can have this lock.
+			 */
+			Assert(S_LOCK_FREE(&(buf->io_in_progress_lock)));
+			S_LOCK(&(buf->io_in_progress_lock));
 #endif /* HAS_TEST_AND_SET */
 	    
-	    /*
-	     * Write the buffer out, being careful to release BufMgrLock
-	     * before starting the I/O.
-	     *
-	     * This #ifndef is here because a few extra semops REALLY kill
-	     * you on machines that don't have spinlocks.  If you don't
-	     * operate with much concurrency, well...
-	     */
-	    smok = BufferReplace(buf, true);
+			/*
+			 * Write the buffer out, being careful to release BufMgrLock
+			 * before starting the I/O.
+			 *
+			 * This #ifndef is here because a few extra semops REALLY kill
+			 * you on machines that don't have spinlocks.  If you don't
+			 * operate with much concurrency, well...
+			 */
+			smok = BufferReplace(buf, true);
 #ifndef OPTIMIZE_SINGLE
-	    SpinAcquire(BufMgrLock); 
+			SpinAcquire(BufMgrLock); 
 #endif /* OPTIMIZE_SINGLE */
 
-	    if ( smok == FALSE )
-	    {
-		elog(NOTICE, "BufferAlloc: cannot write block %u for %s/%s",
-			 buf->tag.blockNum, buf->sb_dbname, buf->sb_relname);
-		inProgress = FALSE;
-		buf->flags |= BM_IO_ERROR;
-		buf->flags &= ~BM_IO_IN_PROGRESS;
+			if ( smok == FALSE )
+			{
+				elog(NOTICE, "BufferAlloc: cannot write block %u for %s/%s",
+					 buf->tag.blockNum, buf->sb_dbname, buf->sb_relname);
+				inProgress = FALSE;
+				buf->flags |= BM_IO_ERROR;
+				buf->flags &= ~BM_IO_IN_PROGRESS;
 #ifdef HAS_TEST_AND_SET
-		S_UNLOCK(&(buf->io_in_progress_lock));
+				S_UNLOCK(&(buf->io_in_progress_lock));
 #else /* !HAS_TEST_AND_SET */
-		if (buf->refcount > 1)
-		    SignalIO(buf);
+				if (buf->refcount > 1)
+					SignalIO(buf);
 #endif /* !HAS_TEST_AND_SET */
-		PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 0;
-		buf->refcount--;
-		if ( buf->refcount == 0 )
-		{
-		    AddBufferToFreelist(buf);
-		    buf->flags |= BM_FREE;
-		}
-		buf = (BufferDesc *) NULL;
-	    }
-	    else
-	    {
-		BufferFlushCount++;
-		buf->flags &= ~BM_DIRTY;
-	    }
+				PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 0;
+				buf->refcount--;
+				if ( buf->refcount == 0 )
+				{
+					AddBufferToFreelist(buf);
+					buf->flags |= BM_FREE;
+				}
+				buf = (BufferDesc *) NULL;
+			}
+			else
+			{
+				BufferFlushCount++;
+				buf->flags &= ~BM_DIRTY;
+			}
 	    
-	    /*
-	     * Somebody could have pinned the buffer while we were
-	     * doing the I/O and had given up the BufMgrLock (though
-	     * they would be waiting for us to clear the BM_IO_IN_PROGRESS
-	     * flag).  That's why this is a loop -- if so, we need to clear
-	     * the I/O flags, remove our pin and start all over again.
-	     *
-	     * People may be making buffers free at any time, so there's
-	     * no reason to think that we have an immediate disaster on
-	     * our hands.
-	     */
-	    if (buf && buf->refcount > 1) {
-		inProgress = FALSE;
-		buf->flags &= ~BM_IO_IN_PROGRESS;
+			/*
+			 * Somebody could have pinned the buffer while we were
+			 * doing the I/O and had given up the BufMgrLock (though
+			 * they would be waiting for us to clear the BM_IO_IN_PROGRESS
+			 * flag).  That's why this is a loop -- if so, we need to clear
+			 * the I/O flags, remove our pin and start all over again.
+			 *
+			 * People may be making buffers free at any time, so there's
+			 * no reason to think that we have an immediate disaster on
+			 * our hands.
+			 */
+			if (buf && buf->refcount > 1) 
+			{
+				inProgress = FALSE;
+				buf->flags &= ~BM_IO_IN_PROGRESS;
 #ifdef HAS_TEST_AND_SET
-		S_UNLOCK(&(buf->io_in_progress_lock));
+				S_UNLOCK(&(buf->io_in_progress_lock));
 #else /* !HAS_TEST_AND_SET */
-		if (buf->refcount > 1)
-		    SignalIO(buf);
+				if (buf->refcount > 1)
+					SignalIO(buf);
 #endif /* !HAS_TEST_AND_SET */
-		PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 0;
-		buf->refcount--;
-		buf = (BufferDesc *) NULL;
-	    }
+				PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 0;
+				buf->refcount--;
+				buf = (BufferDesc *) NULL;
+			}
 
-	    /*
-	     * Somebody could have allocated another buffer for the
-	     * same block we are about to read in. (While we flush out
-	     * the dirty buffer, we don't hold the lock and someone could
-	     * have allocated another buffer for the same block. The problem
-	     * is we haven't gotten around to insert the new tag into
-	     * the buffer table. So we need to check here.	-ay 3/95
-	     */
-	    buf2 = BufTableLookup(&newTag);
-	    if (buf2 != NULL) {
-		/* Found it. Someone has already done what we're about
-		 * to do. We'll just handle this as if it were found in
-		 * the buffer pool in the first place.
-		 */
-		if ( buf != NULL )
-		{
+			/*
+			 * Somebody could have allocated another buffer for the
+			 * same block we are about to read in. (While we flush out
+			 * the dirty buffer, we don't hold the lock and someone could
+			 * have allocated another buffer for the same block. The problem
+			 * is we haven't gotten around to insert the new tag into
+			 * the buffer table. So we need to check here.	-ay 3/95
+			 */
+			buf2 = BufTableLookup(&newTag);
+			if (buf2 != NULL) 
+			{
+				/* Found it. Someone has already done what we're about
+				 * to do. We'll just handle this as if it were found in
+				 * the buffer pool in the first place.
+				 */
+				if ( buf != NULL )
+				{
 #ifdef HAS_TEST_AND_SET
-			S_UNLOCK(&(buf->io_in_progress_lock));
+					S_UNLOCK(&(buf->io_in_progress_lock));
 #else /* !HAS_TEST_AND_SET */
-			if (buf->refcount > 1)
-			    SignalIO(buf);
+					if (buf->refcount > 1)
+						SignalIO(buf);
 #endif /* !HAS_TEST_AND_SET */
-		
-		/* give up the buffer since we don't need it any more */
-			buf->refcount--;
-			PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 0;
-			AddBufferToFreelist(buf);
-			buf->flags |= BM_FREE;
-			buf->flags &= ~BM_IO_IN_PROGRESS;
-		}
+			
+					/* give up the buffer since we don't need it any more */
+					buf->refcount--;
+					PrivateRefCount[BufferDescriptorGetBuffer(buf) - 1] = 0;
+					AddBufferToFreelist(buf);
+					buf->flags |= BM_FREE;
+					buf->flags &= ~BM_IO_IN_PROGRESS;
+				}	 
 
-		PinBuffer(buf2);
-		inProgress = (buf2->flags & BM_IO_IN_PROGRESS);
-		
-		*foundPtr = TRUE;
-		if (inProgress) {
-		    WaitIO(buf2, BufMgrLock);
-		    if (buf2->flags & BM_IO_ERROR) {
-			*foundPtr = FALSE;
-		    }
+				PinBuffer(buf2);
+				inProgress = (buf2->flags & BM_IO_IN_PROGRESS);
+			
+				*foundPtr = TRUE;
+				if (inProgress) {
+					WaitIO(buf2, BufMgrLock);
+					if (buf2->flags & BM_IO_ERROR) {
+					*foundPtr = FALSE;
+					}
+				}
+				
+				SpinRelease(BufMgrLock);
+				
+				return(buf2);
+			}
 		}
-		
-		SpinRelease(BufMgrLock);
-		
-		return(buf2);
-	    }
-	}
     }
     /*
      * At this point we should have the sole pin on a non-dirty
@@ -563,9 +566,10 @@ BufferAlloc(Relation reln,
      * writing back until now, either.
      */
     
-    if (! BufTableDelete(buf)) {
-	SpinRelease(BufMgrLock);
-	elog(FATAL,"buffer wasn't in the buffer table\n");
+    if (! BufTableDelete(buf)) 
+	{
+		SpinRelease(BufMgrLock);
+		elog(FATAL,"buffer wasn't in the buffer table\n");
 
     }
     
@@ -578,8 +582,8 @@ BufferAlloc(Relation reln,
     
     INIT_BUFFERTAG(&(buf->tag),reln,blockNum);
     if (! BufTableInsert(buf)) {
-	SpinRelease(BufMgrLock);
-	elog(FATAL,"Buffer in lookup table twice \n");
+		SpinRelease(BufMgrLock);
+		elog(FATAL,"Buffer in lookup table twice \n");
     } 
     
     /* Buffer contents are currently invalid.  Have
@@ -588,11 +592,12 @@ BufferAlloc(Relation reln,
      * has been called simply to allocate a buffer, no
      * io will be attempted, so the flag isnt set.
      */
-    if (!inProgress) {
-	buf->flags |= BM_IO_IN_PROGRESS; 
+    if (!inProgress) 
+	{
+		buf->flags |= BM_IO_IN_PROGRESS; 
 #ifdef HAS_TEST_AND_SET
-	Assert(S_LOCK_FREE(&(buf->io_in_progress_lock)));
-	S_LOCK(&(buf->io_in_progress_lock));
+		Assert(S_LOCK_FREE(&(buf->io_in_progress_lock)));
+		S_LOCK(&(buf->io_in_progress_lock));
 #endif /* HAS_TEST_AND_SET */
     }
     

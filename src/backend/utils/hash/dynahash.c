@@ -449,7 +449,7 @@ long *
 hash_search(HTAB	   *hashp,
 			char	   *keyPtr, 
 			HASHACTION action,	/*
-								 * HASH_FIND / HASH_ENTER / HASH_REMOVE
+								 * HASH_FIND      / HASH_ENTER / HASH_REMOVE
 								 * HASH_FIND_SAVE / HASH_REMOVE_SAVED
 								 */
 			bool       *foundPtr)

@@ -36,7 +36,7 @@ NameData *namein(char *s)
     NameData *result;
 
     if (s == NULL)
-	return(NULL);
+		return(NULL);
     result = (NameData*) palloc(NAMEDATALEN);
     /* always keep it null-padded */
     memset(result->data, 0, NAMEDATALEN); 
@@ -50,9 +50,9 @@ NameData *namein(char *s)
 char *nameout(NameData *s)
 {
     if (s == NULL)
-	return "-";
+		return "-";
     else
-	return pstrdup(s->data);
+		return pstrdup(s->data);
 }
 
 

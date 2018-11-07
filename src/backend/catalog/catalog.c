@@ -83,11 +83,11 @@ bool
 IsSystemRelationName(char *relname)
 {
     if (relname[0] && relname[1] && relname[2])
-	return (relname[0] == 'p' && 
-		relname[1] == 'g' && 
-		relname[2] == '_');
+		return (relname[0] == 'p' && 
+				relname[1] == 'g' && 
+				relname[2] == '_');
     else
-	return FALSE;
+		return FALSE;
 }
 
 /*
@@ -104,13 +104,13 @@ IsSharedSystemRelationName(char *relname)
      * system relation.
      */
     if (!IsSystemRelationName(relname))
-	return FALSE;
+		return FALSE;
     
     i = 0;
     while ( SharedSystemRelationNames[i] != NULL) {
          if (strcmp(SharedSystemRelationNames[i],relname) == 0)
-	     return TRUE;
-	 i++;
+			 return TRUE;
+		 i++;
     }
     return FALSE;
 }

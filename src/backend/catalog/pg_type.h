@@ -98,10 +98,10 @@ typedef TypeTupleFormData	*TypeTupleForm;
  *	compiler constants for pg_type
  * ----------------
  */
-#define Natts_pg_type			16
+#define Natts_pg_type				16
 #define Anum_pg_type_typname		1
 #define Anum_pg_type_typowner		2
-#define Anum_pg_type_typlen		3
+#define Anum_pg_type_typlen			3
 #define Anum_pg_type_typprtlen		4
 #define Anum_pg_type_typbyval		5
 #define Anum_pg_type_typtype		6
@@ -290,19 +290,20 @@ extern Oid TypeGet(char *typeName, bool *defined);
 extern Oid TypeShellMakeWithOpenRelation(Relation pg_type_desc,
 					 char *typeName);
 extern Oid TypeShellMake(char *typeName);
-extern Oid TypeCreate(char *typeName, 
-		      Oid relationOid,
-		      int16 internalSize, 
-		      int16 externalSize, 
-		      char typeType,
-		      char typDelim, 
-		      char *inputProcedure, 
-		      char *outputProcedure,
-		      char *sendProcedure, 
-		      char *receiveProcedure,
-		      char *elementTypeName,
-		      char *defaultTypeValue,
-		      bool passedByValue, char alignment);
+extern Oid TypeCreate(char  *typeName, 
+					  Oid   relationOid,
+					  int16 internalSize, 
+					  int16 externalSize, 
+					  char  typeType,
+					  char  typDelim, 
+					  char  *inputProcedure, 
+					  char  *outputProcedure,
+					  char  *sendProcedure, 
+					  char  *receiveProcedure,
+					  char  *elementTypeName,
+					  char  *defaultTypeValue,
+					  bool  passedByValue, 
+					  char  alignment);
 extern void TypeRename(char *oldTypeName, char *newTypeName);
 extern char *makeArrayTypeName(char *typeName);
 

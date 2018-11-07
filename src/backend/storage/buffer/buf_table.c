@@ -75,22 +75,21 @@ BufferDesc *
 BufTableLookup(BufferTag *tagPtr)
 {
     LookupEnt *	result;
-    bool	found;
+    bool		found;
     
     if (tagPtr->blockNum == P_NEW)
-	return(NULL);
+		return(NULL);
     
-    result = (LookupEnt *) 
-	hash_search(SharedBufHash,(char *) tagPtr,HASH_FIND,&found);
+    result = (LookupEnt *) hash_search(SharedBufHash, (char *) tagPtr, HASH_FIND, &found);
     
     if (! result){
-	elog(WARN,"BufTableLookup: BufferLookup table corrupted");
-	return(NULL);
+		elog(WARN,"BufTableLookup: BufferLookup table corrupted");
+		return(NULL);
     }
     if (! found) {
-	return(NULL);
+		return(NULL);
     }
-    return(&(BufferDescriptors[result->id]));
+    return (&(BufferDescriptors[result->id]));
 }
 
 /*

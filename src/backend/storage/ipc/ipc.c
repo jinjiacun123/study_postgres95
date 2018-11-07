@@ -70,16 +70,16 @@ PrivateMem IpcPrivateMem[16];
 
 static int
 PrivateMemoryCreate(IpcMemoryKey memKey,
-		    uint32 size)
+					uint32		 size)
 {
     static int memid = 0;
     
     UsePrivateMemory = 1;
     
-    IpcPrivateMem[memid].id = memid;
+	IpcPrivateMem[memid].id		= memid;
     IpcPrivateMem[memid].memptr = malloc(size);
     if (IpcPrivateMem[memid].memptr == NULL)
-	elog(WARN, "PrivateMemoryCreate: not enough memory to malloc");
+		elog(WARN, "PrivateMemoryCreate: not enough memory to malloc");
     memset(IpcPrivateMem[memid].memptr, 0, size);	/* XXX PURIFY */
     
     return (memid++);
@@ -173,7 +173,7 @@ int
 on_exitpg(void (*function)(), caddr_t arg)
 {
     if (onexit_index >= MAX_ON_EXITS)
-	return(-1);
+		return(-1);
     
     onexit_list[ onexit_index ].function = function;
     onexit_list[ onexit_index ].arg = arg;
@@ -457,16 +457,16 @@ IpcMemoryCreate(IpcMemoryKey memKey, uint32 size, int permission)
     
     if (memKey == PrivateIPCKey) {
 	/* private */
-	shmid = PrivateMemoryCreate(memKey, size);
+		shmid = PrivateMemoryCreate(memKey, size);
     }else {
     	shmid = shmget(memKey, size, IPC_CREAT|permission); 
     }
 
     if (shmid < 0) {
-	fprintf(stderr,"IpcMemoryCreate: memKey=%d , size=%d , permission=%d", 
-		memKey, size , permission );
-	perror("IpcMemoryCreate: shmget(..., create, ...) failed");
-	return(IpcMemCreationFailed);
+		fprintf(stderr,"IpcMemoryCreate: memKey=%d , size=%d , permission=%d", 
+			memKey, size , permission );
+		perror("IpcMemoryCreate: shmget(..., create, ...) failed");
+		return(IpcMemCreationFailed);
     }
     
     /* if (memKey == PrivateIPCKey) */
@@ -522,19 +522,19 @@ IpcMemoryAttach(IpcMemoryId memId)
     char	*memAddress;
     
     if (UsePrivateMemory) {
-	memAddress = (char *) PrivateMemoryAttach(memId);
+		memAddress = (char *) PrivateMemoryAttach(memId);
     } else {
-	memAddress = (char *) shmat(memId, 0, 0);
+		memAddress = (char *) shmat(memId, 0, 0);
     }
     
     /*	if ( *memAddress == -1) { XXX ??? */
     if ( memAddress == (char *)-1) {
-	perror("IpcMemoryAttach: shmat() failed");
-	return(IpcMemAttachFailed);
+		perror("IpcMemoryAttach: shmat() failed");
+		return(IpcMemAttachFailed);
     }
     
     if (!UsePrivateMemory)
-	on_exitpg(IpcMemoryDetach, (caddr_t) memAddress);
+		on_exitpg(IpcMemoryDetach, (caddr_t) memAddress);
     
     return((char *) memAddress);
 }

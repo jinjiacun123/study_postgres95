@@ -142,17 +142,17 @@ typedef uint16	SystemPortAddress;
 
 /* semaphore definitions */
 
-#define IPCProtection	(0600)		            /* access/modify by user only */
+#define IPCProtection					(0600)	/* access/modify by user only */
 
 #define IPC_NMAXSEM						25		/* maximum number of semaphores */
 #define IpcSemaphoreDefaultStartValue	255
 #define IpcSharedLock					(-1)
-#define IpcExclusiveLock			  (-255)
+#define IpcExclusiveLock				(-255)
 
-#define IpcUnknownStatus	(-1)
-#define IpcInvalidArgument	(-2)
-#define IpcSemIdExist		(-3)
-#define IpcSemIdNotExist	(-4)
+#define IpcUnknownStatus				(-1)
+#define IpcInvalidArgument				(-2)
+#define IpcSemIdExist					(-3)
+#define IpcSemIdNotExist				(-4)
 
 typedef uint32	IpcSemaphoreKey;		/* semaphore key */
 typedef int	    IpcSemaphoreId;

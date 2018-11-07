@@ -53,17 +53,17 @@
 #define MaxRetries	4	/* XXX about 1/4 minute--a hack */
 
 #define IntentReadRelationLock	0x0100
-#define ReadRelationLock	0x0200
+#define ReadRelationLock		0x0200
 #define IntentWriteRelationLock	0x0400
-#define WriteRelationLock	0x0800
-#define IntentReadPageLock	0x1000
-#define ReadTupleLock		0x2000
+#define WriteRelationLock		0x0800
+#define IntentReadPageLock		0x1000
+#define ReadTupleLock			0x2000
 
 #define TupleLevelLockCountMask	0x000f
 
-#define TupleLevelLockLimit	10
+#define TupleLevelLockLimit		10
 
-extern Oid	MyDatabaseId;
+extern Oid						MyDatabaseId;
 
 static LRelId	VariableRelationLRelId = {
     RelOid_pg_variable,
@@ -76,8 +76,8 @@ static LRelId	VariableRelationLRelId = {
  */
 #ifdef	LOCKDEBUG
 #define LOCKDEBUG_10 \
-elog(NOTICE, "RelationGetLRelId(%s) invalid lockInfo", \
-     RelationGetRelationName(relation));
+	elog(NOTICE, "RelationGetLRelId(%s) invalid lockInfo", \
+		 RelationGetRelationName(relation));
 #else
 #define LOCKDEBUG_10
 #endif	/* LOCKDEBUG */
@@ -103,9 +103,9 @@ RelationGetLRelId(Relation relation)
      * ----------------
      */
     if (! LockInfoIsValid(linfo)) {
-	LOCKDEBUG_10;
-	RelationInitLockInfo(relation);
-	linfo = (LockInfo) relation->lockInfo;
+		LOCKDEBUG_10;
+		RelationInitLockInfo(relation);
+		linfo = (LockInfo) relation->lockInfo;
     }
     
     /* ----------------
@@ -115,7 +115,7 @@ RelationGetLRelId(Relation relation)
      */
     if (strcmp(RelationGetRelationName(relation)->data,
 	       VariableRelationName) == 0) {
-	return (VariableRelationLRelId);
+		return (VariableRelationLRelId);
     }
     
     return (linfo->lRelId);
@@ -928,6 +928,6 @@ RelationUnsetLockForExtend(Relation relation)
 void
 LRelIdAssign(LRelId *lRelId, Oid dbId, Oid relId)
 {   
-    lRelId->dbId = dbId;
+    lRelId->dbId  = dbId;
     lRelId->relId = relId;
 }

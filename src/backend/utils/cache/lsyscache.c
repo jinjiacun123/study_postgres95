@@ -135,24 +135,24 @@ get_atttype(Oid relid, AttrNumber attnum)
 bool
 get_attisset(Oid relid, char *attname)
 {
-    HeapTuple htup;
-    AttrNumber attno;
-    AttributeTupleForm att_tup;
+    HeapTuple			htup;
+    AttrNumber			attno;
+    AttributeTupleForm	att_tup;
 
     attno = get_attnum(relid, attname);
      
     htup = SearchSysCacheTuple(ATTNAME, 
-			       ObjectIdGetDatum(relid),
-			       PointerGetDatum(attname), 
-			       0,0);
+							   ObjectIdGetDatum(relid),
+							   PointerGetDatum(attname), 
+							   0,0);
     if (!HeapTupleIsValid(htup))
-	elog(WARN, "get_attisset: no attribute %.16s in relation %d",
-	     attname, relid);
+		elog(WARN, "get_attisset: no attribute %.16s in relation %d",
+			 attname, relid);
     if (heap_attisnull(htup, attno))
-	return(false);
+		return(false);
     else {
-	att_tup = (AttributeTupleForm)GETSTRUCT(htup);
-	return(att_tup->attisset);
+		att_tup = (AttributeTupleForm)GETSTRUCT(htup);
+		return(att_tup->attisset);
     }
 }
 

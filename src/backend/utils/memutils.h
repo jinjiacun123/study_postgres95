@@ -7,7 +7,7 @@
  *
  *	align.h				alignment macros
  *	aset.h				memory allocation set stuff
- *	oset.h				  (used by aset.h)
+ *	oset.h				(used by aset.h)
  *	(bit.h				bit array type / extern)
  *	clib.h				mem routines
  *	limit.h				max bits/byte, etc.
@@ -45,12 +45,12 @@ s...)
  */
 #define _ALIGNSIZE(TYPE)	offsetof(struct { char __c; TYPE __t;}, __t)
 #define _ALIGN(TYPE, LEN) \
-		(((long)(LEN) + (_ALIGNSIZE(TYPE) - 1)) & ~(_ALIGNSIZE(TYPE) - 1))
-#define SHORTALIGN(LEN)		_ALIGN(short, (LEN))
-#define INTALIGN(LEN)		_ALIGN(int, (LEN))
-#define LONGALIGN(LEN)		_ALIGN(long, (LEN))
-#define DOUBLEALIGN(LEN)	_ALIGN(double, (LEN))
-#define MAXALIGN(LEN)		_ALIGN(double, (LEN))
+							(((long)(LEN) + (_ALIGNSIZE(TYPE) - 1)) & ~(_ALIGNSIZE(TYPE) - 1))
+#define SHORTALIGN(LEN)		_ALIGN(short,	(LEN))
+#define INTALIGN(LEN)		_ALIGN(int,		(LEN))
+#define LONGALIGN(LEN)		_ALIGN(long,	(LEN))
+#define DOUBLEALIGN(LEN)	_ALIGN(double,	(LEN))
+#define MAXALIGN(LEN)		_ALIGN(double,	(LEN))
 
 #endif /* 0 */
 
@@ -100,11 +100,11 @@ s...)
  *	$Header: /usr/local/cvsroot/postgres95/src/backend/utils/memutils.h,v 1.1.1.1 1996/07/09 06:22:02 scrappy Exp $
  */
 
-typedef struct OrderedElemData OrderedElemData;
-typedef OrderedElemData* OrderedElem;
+typedef struct OrderedElemData	OrderedElemData;
+typedef OrderedElemData			*OrderedElem;
 
-typedef struct OrderedSetData OrderedSetData;
-typedef OrderedSetData      * OrderedSet;
+typedef struct OrderedSetData	OrderedSetData;
+typedef OrderedSetData			*OrderedSet;
 
 struct OrderedElemData {
     OrderedElem	next;	/* Next elem or &this->set->dummy	*/
@@ -120,14 +120,14 @@ struct OrderedSetData {
 						/* this could be signed short int! */
 };
 
-extern void OrderedSetInit(OrderedSet set, Offset offset);
-extern bool OrderedSetContains(OrderedSet set, OrderedElem elem);
-extern Pointer OrderedSetGetHead(OrderedSet set);
-extern Pointer OrderedSetGetTail(OrderedSet set);
-extern Pointer OrderedElemGetPredecessor(OrderedElem elem);
-extern Pointer OrderedElemGetSuccessor(OrderedElem elem);
-extern void  OrderedElemPop(OrderedElem elem);
-extern void OrderedElemPushInto(OrderedElem elem, OrderedSet Set);
+extern void		OrderedSetInit(OrderedSet set, Offset offset);
+extern bool		OrderedSetContains(OrderedSet set, OrderedElem elem);
+extern Pointer	OrderedSetGetHead(OrderedSet set);
+extern Pointer	OrderedSetGetTail(OrderedSet set);
+extern Pointer	OrderedElemGetPredecessor(OrderedElem elem);
+extern Pointer	OrderedElemGetSuccessor(OrderedElem elem);
+extern void		OrderedElemPop(OrderedElem elem);
+extern void		OrderedElemPushInto(OrderedElem elem, OrderedSet Set);
 
 /*****************************************************************************
  *    aset.h --		Allocation set definitions.                          *
@@ -219,23 +219,23 @@ typedef AllocSetData *AllocSet;
  */
 #define AllocSetIsValid(set) PointerIsValid(set)    
 
-extern void AllocSetInit(AllocSet set, AllocMode mode, Size limit);
+extern void			AllocSetInit(AllocSet set, AllocMode mode, Size limit);
 
-extern void AllocSetReset(AllocSet set);
+extern void			AllocSetReset(AllocSet set);
 
-extern bool AllocSetContains(AllocSet set, AllocPointer pointer);
+extern bool			AllocSetContains(AllocSet set, AllocPointer pointer);
 extern AllocPointer AllocSetAlloc(AllocSet set, Size size);
-extern void AllocSetFree(AllocSet set, AllocPointer pointer);
+extern void			AllocSetFree(AllocSet set, AllocPointer pointer);
 extern AllocPointer AllocSetRealloc(AllocSet set, AllocPointer pointer, 
-				    Size size);
+									Size size);
 
-extern int AllocSetIterate(AllocSet set,
-			     void (*function)(AllocPointer pointer));
+extern int			AllocSetIterate(AllocSet set,
+									void (*function)(AllocPointer pointer));
 
-extern int AllocSetCount(AllocSet set);
+extern int			AllocSetCount(AllocSet set);
 
-extern void AllocPointerDump(AllocPointer pointer);
-extern void AllocSetDump(AllocSet set);
+extern void			AllocPointerDump(AllocPointer pointer);
+extern void			AllocSetDump(AllocSet set);
 
 /*****************************************************************************
  *    clib.h --		Standard C library definitions                       *
@@ -262,7 +262,7 @@ typedef 	CLibCopyLength;
  *	Copies fixed length block of memory to another.
  */
 #define MemoryCopy(toBuffer, fromBuffer, length)\
-    memcpy(toBuffer, fromBuffer, length)
+		memcpy(toBuffer, fromBuffer, length)
 
 /*****************************************************************************
  *    limit.h --	POSTGRES limit definitions.                          *

@@ -51,8 +51,8 @@ typedef double	float8;
 typedef int4 aclitem;
 
 
-typedef uint32	Oid;
-#define InvalidOid	0
+typedef uint32				  Oid;
+#define InvalidOid			  0
 #define OidIsValid(objectId)  ((bool) (objectId != InvalidOid))
 
 /* unfortunately, both regproc and RegProcedure are used */
@@ -171,10 +171,10 @@ typedef struct OidNameData	*OidName;
  * ----------------------------------------------------------------
  */
 
-typedef uint32			TransactionId;
+typedef uint32					TransactionId;
 #define InvalidTransactionId	0
-typedef uint16			CommandId;
-#define FirstCommandId	0
+typedef uint16					CommandId;
+#define FirstCommandId			0
 
 /* ----------------------------------------------------------------
  *		Section 4: genbki macros used by the

@@ -68,15 +68,15 @@
 
 /* shared memory global variables */
 
-unsigned long  ShmemBase = 0;						/* start and end address of
+unsigned long		  ShmemBase = 0;				/* start and end address of
 													* shared memory
 													*/
 static unsigned long  ShmemEnd = 0;
 static unsigned long  ShmemSize = 0;				/* current size (and default) */
 
-SPINLOCK      ShmemLock;							/* lock for shared memory allocation */
+SPINLOCK			  ShmemLock;					/* lock for shared memory allocation */
 
-SPINLOCK      BindingLock;							/* lock for binding table access */
+SPINLOCK			  BindingLock;					/* lock for binding table access */
 
 static unsigned long *ShmemFreeStart = NULL;		/* pointer to the OFFSET of
 													* first free shared memory
@@ -84,11 +84,11 @@ static unsigned long *ShmemFreeStart = NULL;		/* pointer to the OFFSET of
 static unsigned long *ShmemBindingTabOffset = NULL; /* start of the binding
 													 * table (for bootstrap)
 													 */
-static int  ShmemBootstrap = FALSE;					/* flag becomes true when shared mem
+static int			  ShmemBootstrap = FALSE;		/* flag becomes true when shared mem
 													 * is created by POSTMASTER
 													 */
 
-static HTAB *BindingTable = NULL;
+static HTAB			  *BindingTable = NULL;
 
 /* ---------------------
  * ShmemBindingTabReset() - Resets the binding table to NULL....
@@ -119,12 +119,12 @@ void
 ShmemCreate(unsigned int key, unsigned int size)
 {
     if (size)
-	ShmemSize = size;
+		ShmemSize = size;
     /* create shared mem region */
-    if ((ShmemId=IpcMemoryCreate(key,ShmemSize,IPCProtection))
-	==IpcMemCreationFailed) {
-	elog(FATAL,"ShmemCreate: cannot create region");
-	exit(1);
+    if ((ShmemId = IpcMemoryCreate(key, ShmemSize, IPCProtection))
+		==IpcMemCreationFailed) {
+			elog(FATAL,"ShmemCreate: cannot create region");
+			exit(1);
     }
     
     /* ShmemBootstrap is true if shared memory has been
@@ -225,7 +225,7 @@ InitShmem(unsigned int key, unsigned int size)
     strncpy(item.key,"BindingTable",BTABLE_KEYSIZE);
     
     result = (BindingEnt *) 
-	hash_search(BindingTable,(char *) &item,HASH_ENTER, &found);
+		hash_search(BindingTable,(char *) &item,HASH_ENTER, &found);
     
     
     if (! result ) {
@@ -270,8 +270,8 @@ InitShmem(unsigned int key, unsigned int size)
 long *
 ShmemAlloc(unsigned long size)
 {
-    unsigned long tmpFree;
-    long *newSpace;
+    unsigned long	tmpFree;
+    long			*newSpace;
     
     /*
      * ensure space is word aligned.
@@ -282,7 +282,7 @@ ShmemAlloc(unsigned long size)
      *                                                - ay 12/94
      */
     if (size % sizeof(double))
-	size += sizeof(double) - (size % sizeof(double));
+		size += sizeof(double) - (size % sizeof(double));
     
     Assert(*ShmemFreeStart);
     
@@ -290,16 +290,16 @@ ShmemAlloc(unsigned long size)
     
     tmpFree = *ShmemFreeStart + size;
     if (tmpFree <= ShmemSize) {
-	newSpace = (long *)MAKE_PTR(*ShmemFreeStart);
-	*ShmemFreeStart += size;
+		newSpace = (long *)MAKE_PTR(*ShmemFreeStart);
+		*ShmemFreeStart += size;
     } else {
-	newSpace = NULL;
+		newSpace = NULL;
     }
     
     SpinRelease(ShmemLock); 
     
     if (! newSpace) {
-	elog(NOTICE,"ShmemAlloc: out of memory ");
+		elog(NOTICE,"ShmemAlloc: out of memory ");
     }
     return(newSpace);
 }
@@ -396,21 +396,20 @@ ShmemPIDLookup(int pid, SHMEM_OFFSET* locationPtr)
     sprintf(item.key,"PID %d",pid);
     
     SpinAcquire(BindingLock);
-    result = (BindingEnt *) 
-	hash_search(BindingTable,(char *) &item, HASH_ENTER, &found);
+    result = (BindingEnt *)hash_search(BindingTable,(char *) &item, HASH_ENTER, &found);
     
     if (! result) {
 	
-	SpinRelease(BindingLock);
-	elog(WARN,"ShmemInitPID: BindingTable corrupted");
-	return(FALSE);
+		SpinRelease(BindingLock);
+		elog(WARN,"ShmemInitPID: BindingTable corrupted");
+		return(FALSE);
 	
     } 
     
     if (found) {
-	*locationPtr = result->location;
+		*locationPtr = result->location;
     } else {
-	result->location = *locationPtr;
+		result->location = *locationPtr;
     }
     
     SpinRelease(BindingLock);
@@ -430,8 +429,8 @@ SHMEM_OFFSET
 ShmemPIDDestroy(int pid)
 {
     BindingEnt *	result,item;
-    bool	found;
-    SHMEM_OFFSET  location;
+    bool			found;
+    SHMEM_OFFSET	location;
     
     Assert(BindingTable);
     
@@ -439,24 +438,23 @@ ShmemPIDDestroy(int pid)
     sprintf(item.key,"PID %d",pid);
     
     SpinAcquire(BindingLock);
-    result = (BindingEnt *) 
-	hash_search(BindingTable,(char *) &item, HASH_REMOVE, &found);
+    result = (BindingEnt *)hash_search(BindingTable,(char *) &item, HASH_REMOVE, &found);
     
     if (found)
-	location = result->location;
+		location = result->location;
     SpinRelease(BindingLock);
     
     if (! result) {
 	
-	elog(WARN,"ShmemPIDDestroy: PID table corrupted");
-	return(INVALID_OFFSET);
+		elog(WARN,"ShmemPIDDestroy: PID table corrupted");
+		return(INVALID_OFFSET);
 	
     } 
     
     if (found)
-	return (location);
+		return (location);
     else {
-	return(INVALID_OFFSET);
+		return(INVALID_OFFSET);
     }
 }
 
@@ -516,8 +514,7 @@ ShmemInitStruct(char *name, unsigned long size, bool *foundPtr)
 	else 
 	{
 		/* look it up in the bindint table */
-		result = (BindingEnt *) 
-			hash_search(BindingTable,(char *) &item,HASH_ENTER, foundPtr);
+		result = (BindingEnt *)hash_search(BindingTable,(char *) &item,HASH_ENTER, foundPtr);
     }
     
     if (! result) {
